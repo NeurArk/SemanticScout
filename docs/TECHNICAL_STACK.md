@@ -116,7 +116,7 @@ SemanticScout leverages the latest 2025 AI/ML technologies to deliver a professi
 
 ### Plotly
 
-- **Package**: `plotly ^6.0.1`
+- **Package**: `plotly`
 - **Usage**: Interactive visualizations and dashboards
 - **Features**:
   - Real-time updates
@@ -151,34 +151,34 @@ SemanticScout leverages the latest 2025 AI/ML technologies to deliver a professi
 
 ```
 # Core ML/AI
-langchain>=0.3.60
-langchain-community>=0.3.60
-langchain-openai>=0.3.60
-langgraph>=0.2.47
-openai>=1.60.0
+langchain
+langchain-community
+langchain-openai
+langgraph
+openai
 
 # Vector Database
-chromadb>=0.5.10
+chromadb
 
 # Document Processing
-unstructured[all-docs]>=0.12.0
-PyMuPDF>=1.25.0
-python-docx>=1.1.0
+unstructured[all-docs]
+PyMuPDF
+python-docx
 
 # UI Framework
-gradio>=5.29.0
+gradio
 
 # Visualization
-plotly>=6.0.1
-networkx>=3.4.2
-umap-learn>=0.5.7
-scikit-learn>=1.6.1
+plotly
+networkx
+umap-learn
+scikit-learn
 
 # Utilities
-python-dotenv>=1.0.0
-pydantic>=2.5.0
-fastapi>=0.105.0  # For future API endpoints
-uvicorn>=0.25.0   # ASGI server
+python-dotenv
+pydantic
+fastapi  # For future API endpoints
+uvicorn   # ASGI server
 ```
 
 ## 🔧 Configuration Management

@@ -48,13 +48,13 @@ Development Environment (Unit testing)
 ### Framework and Tools
 ```python
 # Testing stack
-pytest>=8.3.0                 # Primary testing framework  
-pytest-cov>=5.0.0            # Coverage reporting
-pytest-mock>=3.14.0          # Mocking utilities
-pytest-asyncio>=0.24.0       # Async testing
-factory-boy>=3.3.0           # Test data factories
-freezegun>=1.5.0              # Time manipulation
-responses>=0.25.0             # HTTP mocking
+pytest                 # Primary testing framework  
+pytest-cov            # Coverage reporting
+pytest-mock          # Mocking utilities
+pytest-asyncio       # Async testing
+factory-boy           # Test data factories
+freezegun              # Time manipulation
+responses             # HTTP mocking
 ```
 
 ### Unit Test Structure
