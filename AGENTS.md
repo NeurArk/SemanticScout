@@ -92,9 +92,9 @@ def important_function():
 # ALWAYS test after dependency changes
 
 # Example from requirements.txt
-langchain>=0.1.0
-openai>=1.12.0
-chromadb>=0.4.0
+langchain
+openai
+chromadb
 ```
 
 ### Testing Requirements
