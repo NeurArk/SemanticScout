@@ -253,6 +253,6 @@ Perfect for demonstrating expertise in:
 
 ---
 
-**Built with ❤️ by [NeurArk](https://github.com/NeurArk) • Powered by OpenAI GPT-4.1 & LangChain**
+**Built with ❤️ by [NeurArk](https://www.neurark.com) • Powered by OpenAI GPT-4.1 & LangChain**
 
 *Transform your document search experience with the power of semantic AI.*
