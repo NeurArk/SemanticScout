@@ -1,0 +1,55 @@
+# SemanticScout - Development Dependencies Only
+# Updated for May 2025
+
+# Include production dependencies
+-r requirements.txt
+
+# Additional Development Tools
+jupyter>=1.1.0
+notebook>=7.2.0
+ipykernel>=6.29.0
+
+# Advanced Linting and Formatting
+ruff>=0.6.0  # Modern replacement for flake8 + isort
+autopep8>=2.3.0
+
+# Testing Frameworks
+pytest-xdist>=3.6.0  # Parallel testing
+pytest-benchmark>=4.0.0  # Performance benchmarks
+pytest-html>=4.1.0  # HTML reports
+coverage>=7.6.0
+
+# Type Checking
+pyright>=1.1.380  # Alternative to mypy
+
+# Documentation Building
+mkdocs>=1.6.0
+mkdocs-material>=9.5.0
+myst-parser>=4.0.0
+
+# Development Utilities
+pip-tools>=7.4.0  # Dependency management
+pipdeptree>=2.23.0  # Dependency visualization
+
+# Git Hooks
+gitpython>=3.1.0
+
+# Environment Management
+python-decouple>=3.8
+environs>=11.0.0
+
+# Database Inspection
+sqlalchemy>=2.0.0  # For future database needs
+
+# API Documentation
+redoc>=2.1.0  # API documentation
+
+# Profiling
+py-spy>=0.3.0  # Python profiler
+memory-profiler>=0.61.0
+
+# Security Testing
+safety>=3.2.0  # Dependency vulnerability scanner
+
+# File Watching for Development
+watchdog>=5.0.0

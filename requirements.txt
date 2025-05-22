@@ -1,0 +1,83 @@
+# SemanticScout - Python Dependencies
+# Updated for May 2025 with latest stable versions
+
+# Core AI/ML Framework
+langchain>=0.3.60
+langchain-community>=0.3.60
+langchain-openai>=0.3.60
+langgraph>=0.2.47
+openai>=1.60.0
+
+# Vector Database
+chromadb>=0.5.10
+
+# Document Processing
+unstructured[all-docs]>=0.15.0
+PyMuPDF>=1.25.0
+python-docx>=1.1.2
+python-magic>=0.4.27
+
+# User Interface
+gradio>=5.29.0
+
+# Visualization
+plotly>=6.0.1
+networkx>=3.4.2
+umap-learn>=0.5.7
+scikit-learn>=1.6.1
+
+# Data Processing
+pandas>=2.2.0
+numpy>=1.26.0
+
+# Configuration Management
+pydantic>=2.8.0
+pydantic-settings>=2.4.0
+python-dotenv>=1.0.0
+
+# Utilities
+tenacity>=8.5.0
+tqdm>=4.66.0
+requests>=2.32.0
+
+# Optional API Framework (for future REST API)
+fastapi>=0.115.0
+uvicorn>=0.30.0
+
+# Development Dependencies
+pytest>=8.3.0
+pytest-cov>=5.0.0
+pytest-mock>=3.14.0
+pytest-asyncio>=0.24.0
+
+# Code Quality
+black>=25.1.0
+flake8>=7.2.0
+mypy>=1.15.0
+isort>=5.13.0
+pre-commit>=3.8.0
+
+# Testing Utilities
+factory-boy>=3.3.0
+freezegun>=1.5.0
+responses>=0.25.0
+
+# Performance Testing
+locust>=2.32.0
+
+# Type Hints
+types-requests>=2.32.0
+types-python-dateutil>=2.9.0
+
+# Security
+bandit>=1.7.9
+
+# Documentation
+sphinx>=8.1.0
+sphinx-rtd-theme>=3.0.0
+
+# Monitoring
+psutil>=6.1.0
+
+# Additional ML/Data Science
+scipy>=1.14.0
