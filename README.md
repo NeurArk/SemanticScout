@@ -5,8 +5,8 @@
 
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![OpenAI GPT-4.1](https://img.shields.io/badge/OpenAI-GPT--4.1-green.svg)](https://platform.openai.com/)
-[![LangChain](https://img.shields.io/badge/LangChain-0.3.60+-orange.svg)](https://python.langchain.com/)
-[![Gradio](https://img.shields.io/badge/Gradio-5.29.0+-purple.svg)](https://gradio.app/)
+[![LangChain](https://img.shields.io/badge/LangChain-latest-orange.svg)](https://python.langchain.com/)
+[![Gradio](https://img.shields.io/badge/Gradio-latest-purple.svg)](https://gradio.app/)
 
 ## 🎯 Overview
 
@@ -85,11 +85,11 @@ SemanticScout is a cutting-edge semantic search system that revolutionizes docum
 
 | Component | Technology | Version | Purpose |
 |-----------|------------|---------|---------|
-| **AI Framework** | LangChain + LangGraph | 0.3.60+ | RAG pipeline orchestration |
+| **AI Framework** | LangChain + LangGraph | Latest | RAG pipeline orchestration |
 | **Language Model** | OpenAI GPT-4.1 | Latest | Query understanding & processing |
 | **Embeddings** | text-embedding-3-large | 3072-dim | Semantic vector generation |
-| **Vector DB** | ChromaDB | 0.5.10+ | Efficient similarity search |
-| **UI Framework** | Gradio | 5.29.0+ | Interactive web interface |
+| **Vector DB** | ChromaDB | Latest | Efficient similarity search |
+| **UI Framework** | Gradio | Latest | Interactive web interface |
 | **Visualization** | Plotly + NetworkX | Latest | Document relationship graphs |
 
 ### System Architecture
