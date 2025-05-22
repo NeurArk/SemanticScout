@@ -1,5 +1,5 @@
-# SemanticScout - Production Dependencies
-# All libraries needed for semantic document search application
+# SemanticScout - All Dependencies
+# Production + Development dependencies in single file
 
 # Core AI/ML Framework
 langchain>=0.3.25
@@ -11,7 +11,7 @@ openai>=1.0.0
 # Vector Database
 chromadb>=1.0.10
 
-# Document Processing (multi-format support as per TECHNICAL_STACK.md)
+# Document Processing (multi-format support)
 unstructured[all-docs]>=0.16.0
 PyMuPDF>=1.24.0
 python-docx>=1.1.0
@@ -20,7 +20,7 @@ python-magic>=0.4.27
 # User Interface
 gradio>=5.29.0
 
-# Visualization (document relationships as per PRD.md)
+# Visualization (document relationships)
 plotly>=6.0.1
 networkx>=3.4.0
 umap-learn>=0.5.5
@@ -35,7 +35,25 @@ pydantic>=2.5.0
 pydantic-settings>=2.0.0
 python-dotenv>=1.0.0
 
-# Utilities (reliability as per specs)
+# Utilities
 tenacity>=8.2.0
 tqdm>=4.65.0
 requests>=2.31.0
+
+# Testing Framework
+pytest>=8.0.0
+pytest-cov>=4.0.0
+pytest-mock>=3.12.0
+pytest-asyncio>=0.23.0
+
+# Code Quality Tools
+black>=24.0.0
+flake8>=7.0.0
+mypy>=1.8.0
+isort>=5.12.0
+
+# Type Hints Support
+types-requests>=2.31.0
+
+# Development Utilities
+pre-commit>=3.6.0
