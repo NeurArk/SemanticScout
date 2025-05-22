@@ -11,16 +11,12 @@ Complete implementation roadmap for SemanticScout semantic document search appli
 ## 📋 Development Phases
 
 ### Phase 1: Foundation & Core Infrastructure (PR1-3)
-*Duration: 1-2 weeks*
 
 ### Phase 2: Core Features & Search Engine (PR4-6)  
-*Duration: 1-2 weeks*
 
 ### Phase 3: User Interface & Experience (PR7-8)
-*Duration: 1 week*
 
 ### Phase 4: Polish & Production Ready (PR9-10)
-*Duration: 3-5 days*
 
 ---
 
