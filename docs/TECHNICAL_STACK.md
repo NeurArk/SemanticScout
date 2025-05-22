@@ -100,7 +100,7 @@ SemanticScout leverages the latest 2025 AI/ML technologies to deliver a professi
 
 ### Gradio
 
-- **Version**: `^5.29.0`
+- **Version**: Latest stable
 - **Type**: Python-native UI framework
 - **Theme**: `gr.themes.Soft()` with custom corporate styling
 - **Components**:
