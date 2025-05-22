@@ -54,6 +54,3 @@ isort>=5.12.0
 
 # Type Hints Support
 types-requests>=2.31.0
-
-# Development Utilities
-pre-commit>=3.6.0
