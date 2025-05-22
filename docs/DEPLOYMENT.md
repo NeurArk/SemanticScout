@@ -212,21 +212,21 @@ docker-compose exec semanticscout bash
 **requirements.txt**
 
 ```txt
-gradio>=5.29.0
-langchain>=0.3.60
-langchain-community>=0.3.60
-langchain-openai>=0.3.60
-langgraph>=0.2.47
-openai>=1.60.0
-chromadb>=0.5.10
-unstructured[all-docs]>=0.12.0
-PyMuPDF>=1.25.0
-plotly>=5.17.0
-networkx>=3.4.2
-umap-learn>=0.5.7
-scikit-learn>=1.6.1
-python-dotenv>=1.0.0
-pydantic>=2.5.0
+gradio
+langchain
+langchain-community
+langchain-openai
+langgraph
+openai
+chromadb
+unstructured[all-docs]
+PyMuPDF
+plotly
+networkx
+umap-learn
+scikit-learn
+python-dotenv
+pydantic
 ```
 
 **README.md for Spaces**
