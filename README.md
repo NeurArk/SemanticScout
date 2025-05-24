@@ -46,6 +46,8 @@ SemanticScout is a cutting-edge semantic search system that revolutionizes docum
 3. **Install dependencies**:
    ```bash
    pip install -r requirements.txt
+   # For development
+   pip install -r requirements-dev.txt
    ```
 
 4. **Configure environment**:
@@ -54,12 +56,15 @@ SemanticScout is a cutting-edge semantic search system that revolutionizes docum
    # Edit .env and add your OpenAI API key
    ```
 
-5. **Launch the application**:
+5. **Initialize the environment**:
+   ```bash
+   python scripts/setup.py
+   ```
+6. **Launch the application**:
    ```bash
    python app.py
    ```
-
-6. **Open your browser** to `http://localhost:7860`
+7. **Open your browser** to `http://localhost:7860`
 
 ## 💡 Usage
 
