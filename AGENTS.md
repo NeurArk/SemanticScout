@@ -10,18 +10,35 @@ This file provides comprehensive guidelines for AI development agents working on
 
 ## 🎯 Project Context
 
-### Project Mission
-SemanticScout is a professional-grade semantic document search application designed for:
-- **Enterprise demonstrations**: Showcasing AI capabilities to potential clients
-- **Portfolio enhancement**: Demonstrating advanced technical skills for freelance platforms
-- **Technology validation**: Proving competency with latest 2025 AI/ML technologies
+### ⚠️ CRITICAL: THIS IS A CHAT-WITH-DOCUMENTS DEMO APPLICATION
+**Core Features**: 
+1. **Chat Interface**: GPT-4.1 powered conversational AI
+2. **Semantic Search**: Embedding-based document search
+3. **Gradio UI**: No REST API needed
 
-### Success Definition
-A successful implementation must be:
-- **Professional**: Enterprise-grade appearance and functionality
-- **Reliable**: Stable operation suitable for live demonstrations
-- **Performant**: Response times meeting business requirements
-- **Maintainable**: Clean, documented code for future enhancement
+### Project Mission
+SemanticScout is a professional **"Chat with your Documents"** demo application:
+- **NeurArk client demonstrations**: Show AI-powered document interaction
+- **Freelance portfolio**: Showcase RAG (Retrieval Augmented Generation) skills
+- **Technology showcase**: GPT-4.1 + embeddings + vector search
+
+### What to Build (MVP Scope)
+✅ **BUILD THESE**:
+- Gradio chat interface (conversational UI)
+- Document upload & processing (PDF, DOCX, TXT, MD)
+- OpenAI embeddings (text-embedding-3-large) for search
+- OpenAI GPT-4.1 for chat responses
+- ChromaDB vector storage
+- RAG pipeline (retrieve relevant docs + generate answers)
+- Document similarity visualization
+- Context-aware responses
+
+❌ **DO NOT BUILD**:
+- REST API endpoints
+- Authentication/users
+- Production logging
+- Monitoring/analytics
+- Multi-tenant features
 
 ## 📁 Codebase Structure
 
@@ -38,12 +55,13 @@ SemanticScout/
 
 ### Documentation Priority
 **ALWAYS read documentation before coding**:
-1. `docs/PRD.md` - Product requirements and business context
-2. `docs/TECHNICAL_STACK.md` - Technology choices and dependencies
-3. `docs/ARCHITECTURE.md` - System design and component structure
-4. `docs/API_SPECIFICATION.md` - API contracts and data models
-5. `docs/UI_GUIDELINES.md` - User interface standards
-6. `TODO.md` - Current development tasks and priorities
+1. **THIS FILE (AGENTS.md)** - Primary source of truth
+2. **TODO.md** - Current tasks and PR breakdown
+3. **docs/prs/PR{X}-DETAILED.md** - Detailed implementation guides (when available)
+4. **docs/PRD.md** - Product vision (chat + search features)
+5. **docs/TECHNICAL_STACK.md** - Technology choices
+6. **docs/ARCHITECTURE.md** - System design
+7. **docs/UI_GUIDELINES.md** - Gradio UI standards
 
 ## 🛠️ Development Standards
 
@@ -87,14 +105,68 @@ def important_function():
 
 #### Dependency Management
 ```python
-# ALWAYS use exact versions from TECHNICAL_STACK.md
-# NEVER upgrade dependencies without documentation update
-# ALWAYS test after dependency changes
-
-# Example from requirements.txt
+# ALWAYS use versions from requirements.txt
+# Core dependencies needed:
 langchain
-openai
+langchain-community
+langchain-openai
+openai  # For GPT-4.1 chat AND embeddings
 chromadb
+gradio
+pymupdf
+python-docx
+Unstructured
+pandas
+numpy
+python-dotenv
+pydantic
+pydantic-settings
+```
+
+## 🔧 CRITICAL TECHNICAL PARAMETERS
+
+### Chat Configuration (GPT-4.1)
+```python
+CHAT_MODEL = "gpt-4.1"  # GPT-4.1 (latest GPT-4 model)
+CHAT_TEMPERATURE = 0.7
+CHAT_MAX_TOKENS = 2000
+CONTEXT_WINDOW = 128000  # GPT-4.1 context window
+SYSTEM_PROMPT = """You are a helpful AI assistant with access to the user's documents. 
+Use the provided context to answer questions accurately. 
+If the answer isn't in the documents, say so."""
+```
+
+### Document Processing
+```python
+CHUNK_SIZE = 1000  # tokens per chunk
+CHUNK_OVERLAP = 200  # overlap between chunks
+MAX_FILE_SIZE = 100 * 1024 * 1024  # 100MB limit
+SUPPORTED_FORMATS = ['pdf', 'docx', 'txt', 'md']
+PROCESSING_TIMEOUT = 30  # seconds per document
+```
+
+### Embedding Configuration
+```python
+EMBEDDING_MODEL = "text-embedding-3-large"
+EMBEDDING_DIMENSION = 3072
+BATCH_SIZE = 100  # chunks per API call
+RATE_LIMIT_DELAY = 4  # initial backoff in seconds
+MAX_RETRIES = 3
+```
+
+### RAG Pipeline
+```python
+RETRIEVAL_TOP_K = 5  # documents to retrieve for context
+SIMILARITY_THRESHOLD = 0.7  # minimum relevance score
+MAX_CONTEXT_LENGTH = 8000  # tokens for context
+RESPONSE_MODE = "compact"  # or "tree_summarize"
+```
+
+### Search Configuration
+```python
+SEARCH_RESULTS = 10  # results to display
+SEARCH_TIMEOUT = 2.0  # seconds
+HIGHLIGHT_LENGTH = 200  # characters around match
 ```
 
 ### Testing Requirements
@@ -309,7 +381,6 @@ class VectorStore:
 3. **Technical Documentation Updates**:
    - **TECHNICAL_STACK.md**: Update if dependencies or versions change
    - **ARCHITECTURE.md**: Modify if system design evolves
-   - **API_SPECIFICATION.md**: Update if API contracts change
    - **UI_GUIDELINES.md**: Revise if interface standards change
    - **DEPLOYMENT.md**: Update if deployment process changes
 
@@ -382,9 +453,9 @@ def test_openai_rate_limit_handling(mock_openai):
 ### Git Workflow and Branch Strategy
 
 #### Branch Management
-- **Main branch**: Contains production-ready code, always stable
-- **Feature branches**: Create new branch for each PR from main
-- **No develop branch**: Work directly with main and feature branches
+- **main**: Production-ready code only
+- **feature/PR{X}-{description}**: Feature branches (e.g., feature/PR2-core-models)
+- **NO develop branch**: Merge features directly to main
 
 #### Agent Workflow
 1. **Start from main branch** 
@@ -443,6 +514,29 @@ Closes #issue-number"
 - [ ] Visualizations render correctly
 - [ ] Error states display user-friendly messages
 - [ ] Performance meets requirements under normal load
+
+## 🚨 Common Pitfalls & Demo Focus
+
+### AVOID These Mistakes
+1. **Building REST API** - Gradio chat interface only!
+2. **Forgetting chat feature** - This is chat + search, not just search
+3. **Over-engineering RAG** - Keep pipeline simple for demo
+4. **Real OpenAI calls in tests** - Use mocks
+5. **Large context windows** - Optimize for cost
+
+### FOCUS On These
+1. **Smooth chat experience** - Natural conversation flow
+2. **Accurate RAG responses** - Context-based answers
+3. **Fast search** - Quick document retrieval
+4. **Visual polish** - Professional UI
+5. **Demo scenarios** - Prepare good examples
+
+### Key Features to Highlight
+1. **Natural conversation** about uploaded documents
+2. **Semantic understanding** vs keyword matching
+3. **Source attribution** in responses
+4. **Visual document relationships**
+5. **Multi-format support**
 
 ## 🆘 Troubleshooting
 

@@ -177,8 +177,7 @@ scikit-learn
 # Utilities
 python-dotenv
 pydantic
-fastapi  # For future API endpoints
-uvicorn   # ASGI server
+pydantic-settings
 ```
 
 ## 🔧 Configuration Management

@@ -660,77 +660,171 @@ def setup_logging():
 
 ## 📈 Monitoring and Health Checks
 
-### Health Check Endpoint
+### Health Check Script
 
 ```python
-# health_check.py
-from flask import Flask, jsonify
+# scripts/health_check.py
 import psutil
 import os
+import json
 from datetime import datetime
+import openai
+import chromadb
+from config.settings import settings
+import logging
 
-app = Flask(__name__)
+logger = logging.getLogger(__name__)
 
-@app.route('/health')
-def health_check():
-    """Comprehensive health check"""
-
-    # Check disk space
-    disk_usage = psutil.disk_usage('/')
-    disk_free_gb = disk_usage.free / (1024**3)
-
-    # Check memory
-    memory = psutil.virtual_memory()
-    memory_available_gb = memory.available / (1024**3)
-
-    # Check API connectivity (mock)
-    api_status = check_openai_api()
-
-    # Check database
-    db_status = check_chroma_db()
-
-    health_status = {
-        'status': 'healthy',
-        'timestamp': datetime.utcnow().isoformat(),
-        'version': os.getenv('APP_VERSION', '1.0.0'),
-        'checks': {
-            'disk_space': {
+class HealthChecker:
+    """Application health monitoring for SemanticScout"""
+    
+    def __init__(self):
+        self.checks = []
+    
+    def run_health_check(self):
+        """Comprehensive health check"""
+        
+        # Check disk space
+        disk_status = self._check_disk_space()
+        
+        # Check memory
+        memory_status = self._check_memory()
+        
+        # Check API connectivity
+        api_status = self._check_openai_api()
+        
+        # Check database
+        db_status = self._check_chroma_db()
+        
+        health_status = {
+            'status': 'healthy',
+            'timestamp': datetime.utcnow().isoformat(),
+            'version': os.getenv('APP_VERSION', '1.0.0'),
+            'checks': {
+                'disk_space': disk_status,
+                'memory': memory_status,
+                'openai_api': api_status,
+                'database': db_status
+            }
+        }
+        
+        # Determine overall status
+        error_count = sum(1 for check in health_status['checks'].values() 
+                         if check.get('status') == 'error')
+        warning_count = sum(1 for check in health_status['checks'].values() 
+                           if check.get('status') == 'warning')
+        
+        if error_count > 0:
+            health_status['status'] = 'unhealthy'
+        elif warning_count > 0:
+            health_status['status'] = 'degraded'
+        
+        return health_status
+    
+    def _check_disk_space(self):
+        try:
+            disk_usage = psutil.disk_usage('/')
+            disk_free_gb = disk_usage.free / (1024**3)
+            
+            return {
                 'status': 'ok' if disk_free_gb > 1 else 'warning',
-                'free_gb': round(disk_free_gb, 2)
-            },
-            'memory': {
+                'free_gb': round(disk_free_gb, 2),
+                'percent_used': disk_usage.percent
+            }
+        except Exception as e:
+            logger.error(f"Disk check failed: {e}")
+            return {'status': 'error', 'error': str(e)}
+    
+    def _check_memory(self):
+        try:
+            memory = psutil.virtual_memory()
+            memory_available_gb = memory.available / (1024**3)
+            
+            return {
                 'status': 'ok' if memory_available_gb > 0.5 else 'warning',
                 'available_gb': round(memory_available_gb, 2),
                 'percent_used': memory.percent
-            },
-            'openai_api': api_status,
-            'database': db_status
-        }
+            }
+        except Exception as e:
+            logger.error(f"Memory check failed: {e}")
+            return {'status': 'error', 'error': str(e)}
+    
+    def _check_openai_api(self):
+        try:
+            client = openai.OpenAI(api_key=settings.openai_api_key)
+            # Simple connectivity test
+            models = client.models.list()
+            return {'status': 'ok', 'connected': True}
+        except Exception as e:
+            logger.error(f"OpenAI API check failed: {e}")
+            return {'status': 'error', 'error': str(e)}
+    
+    def _check_chroma_db(self):
+        try:
+            client = chromadb.PersistentClient(path=settings.chroma_persist_dir)
+            collections = client.list_collections()
+            return {
+                'status': 'ok', 
+                'collections': len(collections),
+                'connected': True
+            }
+        except Exception as e:
+            logger.error(f"ChromaDB check failed: {e}")
+            return {'status': 'error', 'error': str(e)}
+
+def main():
+    """Run health check and print results"""
+    checker = HealthChecker()
+    result = checker.run_health_check()
+    
+    print(json.dumps(result, indent=2))
+    
+    # Exit with appropriate code
+    if result['status'] == 'unhealthy':
+        exit(1)
+    else:
+        exit(0)
+
+if __name__ == "__main__":
+    main()
+```
+
+### Gradio Integration for Health Status
+
+```python
+# In app.py - Add health status to Gradio interface
+import gradio as gr
+from scripts.health_check import HealthChecker
+
+def get_health_status():
+    """Get health status for display in Gradio"""
+    checker = HealthChecker()
+    status = checker.run_health_check()
+    
+    # Format for display
+    status_emoji = {
+        'healthy': '✅',
+        'degraded': '⚠️',
+        'unhealthy': '❌'
     }
+    
+    display_text = f"{status_emoji[status['status']]} System Status: {status['status'].upper()}\n\n"
+    
+    for check_name, check_data in status['checks'].items():
+        check_emoji = '✅' if check_data['status'] == 'ok' else '⚠️' if check_data['status'] == 'warning' else '❌'
+        display_text += f"{check_emoji} {check_name.replace('_', ' ').title()}: {check_data['status']}\n"
+    
+    return display_text
 
-    # Overall status
-    if any(check['status'] == 'error' for check in health_status['checks'].values()):
-        health_status['status'] = 'unhealthy'
-        return jsonify(health_status), 503
-    elif any(check['status'] == 'warning' for check in health_status['checks'].values()):
-        health_status['status'] = 'degraded'
-        return jsonify(health_status), 200
-
-    return jsonify(health_status), 200
-
-def check_openai_api():
-    try:
-        # Implement OpenAI API connectivity check
-        return {'status': 'ok', 'response_time_ms': 150}
-    except Exception as e:
-        return {'status': 'error', 'error': str(e)}
-
-def check_chroma_db():
-    try:
-        # Implement ChromaDB connectivity check
-        return {'status': 'ok', 'collections': 1}
-    except Exception as e:
-        return {'status': 'error', 'error': str(e)}
+# Add to Gradio interface
+with gr.Tab("System Health"):
+    health_display = gr.Textbox(
+        label="System Health Status",
+        value=get_health_status(),
+        interactive=False
+    )
+    refresh_btn = gr.Button("Refresh Status")
+    refresh_btn.click(get_health_status, outputs=health_display)
 ```
 
 ### Monitoring with Prometheus

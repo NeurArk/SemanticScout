@@ -6,39 +6,42 @@
 
 ## 📋 Executive Summary
 
-SemanticScout is an innovative semantic search system that enables document indexing and search by conceptual similarity rather than exact keyword matching. This application demonstrates advanced AI capabilities applied to natural language processing, a high-demand field in the freelance and enterprise market.
+SemanticScout is an innovative "Chat with your Documents" application that combines conversational AI (GPT-4.1) with semantic search capabilities. Users can have natural conversations about their documents, ask questions, and get contextual answers with source citations. This application demonstrates advanced RAG (Retrieval Augmented Generation) capabilities, a high-demand field in the freelance and enterprise market.
 
 ## 🎯 Project Objectives
 
 ### Primary Objective
-Create a professional and functional semantic search engine demo for:
-- NeurArk client presentations
-- Freelance platform portfolio showcase
-- Advanced AI/ML skills demonstration
+Create a professional "Chat with Documents" application demo for:
+- NeurArk client presentations showcasing conversational AI
+- Freelance platform portfolio demonstrating RAG expertise
+- Advanced AI/ML skills with GPT-4.1 and embeddings
 
 ### Specific Goals
+- Natural language chat interface powered by GPT-4.1
+- Context-aware responses using document content
 - Intelligent document processing (PDF, Word, text)
-- Real-time semantic search capabilities
-- Intuitive and professional user interface
+- Semantic search to support chat functionality
+- Source attribution in chat responses
+- Professional Gradio interface
 - Document relationship visualization
-- Scalable and maintainable architecture
 
-## 👥 User Personas
+## 🎯 Demo Target Audience
 
-### Persona 1: Enterprise Decision Maker
-- **Profile**: IT Director/CTO seeking AI solutions
-- **Needs**: Quick understanding of technical capabilities
-- **Pain Points**: Rapid assessment of technological quality
+### Primary: NeurArk Clients
+- **Use Case**: Live demonstrations during sales meetings
+- **Demo Focus**: Show how AI can understand and answer questions about their documents
+- **Key Message**: "Your team can chat with your documentation"
 
-### Persona 2: Knowledge Management Lead
-- **Profile**: Enterprise documentation manager
-- **Needs**: Improve search in document repositories
-- **Pain Points**: Insufficient keyword-based search
+### Secondary: Freelance Platforms
+- **Use Case**: Portfolio piece on Upwork/Fiverr
+- **Demo Focus**: RAG implementation expertise
+- **Key Message**: "I can build intelligent document chat systems"
 
-### Persona 3: Data Scientist/Developer
-- **Profile**: Technical professional evaluating solution
-- **Needs**: Understanding architecture and technical choices
-- **Pain Points**: Assessment of technological maturity
+### Demo Scenarios
+1. **Legal Firm**: "What are the key terms in this contract?"
+2. **Research Team**: "Summarize findings about X across all papers"
+3. **Technical Docs**: "How do I implement feature Y?"
+4. **Business Reports**: "What were Q3 revenue drivers?"
 
 ## 🚀 Features
 
@@ -56,16 +59,24 @@ Create a professional and functional semantic search engine demo for:
 - **Vector storage**: Chroma database with persistence
 - **Processing status**: Real-time progress indicators
 
-#### 3. Semantic Search
-- **Natural language search**: Complex questions supported
+#### 3. Conversational AI Chat (Primary Feature)
+- **GPT-4.1 powered chat**: Natural conversations about documents
+- **RAG pipeline**: Retrieves relevant context for accurate answers
+- **Source citations**: Shows which documents support the answer
+- **Conversation memory**: Maintains context across messages
+- **Fallback handling**: Clear response when no relevant docs found
+
+#### 4. Semantic Search (Supporting Feature)
+- **Natural language search**: Find relevant documents
 - **Scored results**: Relevance score 0-1
 - **Contextual excerpts**: Most relevant passages highlighted
 - **Real-time search**: Instant results
 
-#### 4. User Interface
-- **Modern design**: Professional Gradio interface
-- **Drag & drop upload**: Maximum ease of use
-- **Interactive results**: Easy document exploration
+#### 5. User Interface
+- **Chat-first design**: Conversational interface as primary feature
+- **Modern Gradio theme**: Professional appearance
+- **Drag & drop upload**: Easy document management
+- **Split view**: Chat on left, search/docs on right
 - **Responsive**: Mobile/desktop adaptation
 
 #### 5. Basic Visualization
@@ -89,9 +100,8 @@ Create a professional and functional semantic search engine demo for:
 
 #### 3. Export and Integration
 - **Results export**: JSON, CSV, PDF reports
-- **REST API**: Programmatic integration
-- **Webhooks**: Real-time notifications
-- **Batch processing**: Bulk processing
+- **Direct Python usage**: Library integration (future)
+- **Batch processing**: Bulk document processing
 
 #### 4. Analytics and Monitoring
 - **Usage metrics**: Search statistics
@@ -214,7 +224,7 @@ Create a professional and functional semantic search engine demo for:
   - *Mitigation*: Limited MVP scope, monitoring
 
 ### Business Risks
-- **API cost overrun**: Intensive demo usage
+- **OpenAI cost overrun**: Intensive demo usage
   - *Mitigation*: Cost monitoring, usage limits
 - **Technical competition**: Similar solutions
   - *Mitigation*: Focus on differentiation, customization
@@ -267,7 +277,7 @@ Create a professional and functional semantic search engine demo for:
 
 ### Technical Documentation
 - **Architecture**: Diagrams and explanations
-- **API Reference**: Endpoints and formats
+- **Interface Guide**: Gradio UI documentation
 - **Deployment Guide**: Setup instructions
 - **Testing Strategy**: Plans and procedures
 

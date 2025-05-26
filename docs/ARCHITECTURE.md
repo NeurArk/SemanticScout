@@ -302,10 +302,12 @@ LangChain Integration
 ### Internal Service Communication
 ```
 Service Communication Pattern: Direct Method Calls
-├── Synchronous Operations (UI Interactions)
+├── Synchronous Operations (Gradio UI Interactions)
 ├── Asynchronous Operations (Background Processing)
 ├── Error Propagation (Exception Handling)
 └── Event Logging (Operation Tracking)
+
+Note: No REST API - All interactions through Gradio interface
 ```
 
 ## 🏗️ File Structure
@@ -355,7 +357,6 @@ SemanticScout/
 │   ├── PRD.md                    # Product requirements
 │   ├── TECHNICAL_STACK.md        # Technology stack
 │   ├── ARCHITECTURE.md           # System architecture
-│   ├── API_SPECIFICATION.md      # API documentation
 │   ├── UI_GUIDELINES.md          # UI/UX guidelines
 │   ├── DEPLOYMENT.md             # Deployment guide
 │   └── TESTING_STRATEGY.md       # Testing approach

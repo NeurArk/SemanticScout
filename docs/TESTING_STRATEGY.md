@@ -463,159 +463,205 @@ class TestGradioInterface:
         assert len(results) >= 0  # May be empty if no documents uploaded
 ```
 
-### API End-to-End Tests
+### Gradio Interface E2E Tests
 ```python
-# tests/e2e/test_api_endpoints.py
+# tests/e2e/test_gradio_interface.py
 import pytest
-import requests
-import json
+import gradio_client as gr_client
 import time
+from pathlib import Path
 
-class TestAPIEndpoints:
-    """Test API endpoints end-to-end"""
+class TestGradioInterface:
+    """Test Gradio interface end-to-end"""
     
     @pytest.fixture
-    def api_base_url(self):
-        return "http://localhost:8000/api/v1"
+    def gradio_client(self):
+        """Connect to running Gradio app"""
+        return gr_client.Client("http://localhost:7860")
     
-    @pytest.fixture
-    def auth_headers(self):
-        return {"X-API-Key": "test-api-key"}
-    
-    def test_health_endpoint(self, api_base_url):
-        """Test health check endpoint"""
-        response = requests.get(f"{api_base_url}/health")
+    def test_health_status_tab(self, gradio_client):
+        """Test health status display in Gradio"""
+        # Get health status through Gradio interface
+        result = gradio_client.predict(
+            fn_index=0  # Health status function
+        )
         
-        assert response.status_code == 200
-        data = response.json()
-        assert data["status"] in ["healthy", "degraded"]
-        assert "timestamp" in data
-        assert "checks" in data
+        assert "System Status" in result
+        assert any(status in result for status in ["HEALTHY", "DEGRADED", "UNHEALTHY"])
+        assert "Disk Space" in result
+        assert "Memory" in result
+        assert "Openai Api" in result
+        assert "Database" in result
     
-    def test_document_upload_api(self, api_base_url, auth_headers):
-        """Test document upload via API"""
+    def test_document_upload_gradio(self, gradio_client, tmp_path):
+        """Test document upload through Gradio"""
         # Create test file
-        test_content = "This is a test document for API testing."
-        files = {
-            'file': ('test.txt', test_content, 'text/plain')
-        }
+        test_file = tmp_path / "test_doc.txt"
+        test_file.write_text("This is a test document for Gradio testing.")
         
-        response = requests.post(
-            f"{api_base_url}/documents",
-            files=files,
-            headers=auth_headers
+        # Upload through Gradio
+        result = gradio_client.predict(
+            str(test_file),  # File path
+            fn_index=1  # Upload function index
         )
         
-        assert response.status_code == 201
-        data = response.json()
-        assert "id" in data
-        assert data["filename"] == "test.txt"
-        assert data["processing_status"] in ["pending", "processing", "completed"]
-        
-        return data["id"]
+        # Verify upload success
+        assert "Successfully uploaded" in result or "Processing" in result
+        assert "test_doc.txt" in result
     
-    def test_search_api(self, api_base_url, auth_headers):
-        """Test search API endpoint"""
-        search_payload = {
-            "query": "test document",
-            "limit": 10,
-            "threshold": 0.5
-        }
-        
-        response = requests.post(
-            f"{api_base_url}/search",
-            json=search_payload,
-            headers=auth_headers
+    def test_chat_interface(self, gradio_client):
+        """Test chat functionality"""
+        # Send chat message
+        chat_result = gradio_client.predict(
+            "What documents have been uploaded?",  # User message
+            [],  # Chat history
+            fn_index=2  # Chat function index
         )
         
-        assert response.status_code == 200
-        data = response.json()
-        assert "results" in data
-        assert "total_count" in data
-        assert "query_time_ms" in data
-        assert isinstance(data["results"], list)
+        # Verify response structure
+        assert isinstance(chat_result, list)  # Returns updated chat history
+        assert len(chat_result) >= 2  # User message and assistant response
+        assert chat_result[-1][0] == "assistant"  # Last message from assistant
+        
+    def test_search_interface(self, gradio_client):
+        """Test search functionality through Gradio"""
+        # Perform search
+        search_result = gradio_client.predict(
+            "machine learning",  # Search query
+            fn_index=3  # Search function index
+        )
+        
+        # Verify search results
+        assert search_result is not None
+        # Results may be empty if no documents uploaded
+        if "No results found" not in search_result:
+            assert "Score:" in search_result or "relevance" in search_result.lower()
 ```
 
 ## 🚀 Performance Testing Strategy
 
-### Load Testing with Locust
+### Load Testing Gradio Application
 ```python
-# tests/performance/locustfile.py
-from locust import HttpUser, task, between
-import json
+# tests/performance/test_gradio_performance.py
+import pytest
+import asyncio
+import time
+import concurrent.futures
+from gradio_client import Client
 import random
 
-class SemanticScoutUser(HttpUser):
-    wait_time = between(1, 3)
+class TestGradioPerformance:
+    """Performance testing for Gradio interface"""
     
-    def on_start(self):
-        """Setup for each user"""
-        self.auth_headers = {"X-API-Key": "test-api-key"}
-    
-    @task(3)
-    def search_documents(self):
-        """Simulate document search"""
-        queries = [
+    def setup_method(self):
+        """Setup test client"""
+        self.base_url = "http://localhost:7860"
+        self.test_queries = [
             "machine learning algorithms",
             "artificial intelligence applications", 
             "data science techniques",
             "neural network architectures",
             "deep learning frameworks"
         ]
-        
-        query = random.choice(queries)
-        payload = {
-            "query": query,
-            "limit": 10,
-            "threshold": 0.7
-        }
-        
-        with self.client.post(
-            "/api/v1/search",
-            json=payload,
-            headers=self.auth_headers,
-            catch_response=True
-        ) as response:
-            if response.status_code == 200:
-                data = response.json()
-                if data.get("query_time_ms", 0) > 2000:
-                    response.failure("Search took too long")
-                else:
-                    response.success()
-            else:
-                response.failure(f"Search failed: {response.status_code}")
     
-    @task(1)
-    def upload_document(self):
-        """Simulate document upload"""
-        test_content = f"Test document {random.randint(1, 1000)} with random content."
-        files = {
-            'file': (f'test_{random.randint(1, 1000)}.txt', test_content, 'text/plain')
-        }
+    def test_concurrent_chat_requests(self):
+        """Test multiple concurrent chat requests"""
+        num_concurrent_users = 10
         
-        with self.client.post(
-            "/api/v1/documents",
-            files=files,
-            headers=self.auth_headers,
-            catch_response=True
-        ) as response:
-            if response.status_code == 201:
-                response.success()
-            else:
-                response.failure(f"Upload failed: {response.status_code}")
+        def chat_request(user_id):
+            client = Client(self.base_url)
+            query = random.choice(self.test_queries)
+            
+            start_time = time.time()
+            try:
+                result = client.predict(
+                    query,
+                    [],  # Empty chat history
+                    fn_index=2  # Chat function
+                )
+                elapsed = time.time() - start_time
+                return {
+                    'user_id': user_id,
+                    'success': True,
+                    'response_time': elapsed,
+                    'query': query
+                }
+            except Exception as e:
+                elapsed = time.time() - start_time
+                return {
+                    'user_id': user_id,
+                    'success': False,
+                    'response_time': elapsed,
+                    'error': str(e)
+                }
+        
+        # Run concurrent requests
+        with concurrent.futures.ThreadPoolExecutor(max_workers=num_concurrent_users) as executor:
+            futures = [executor.submit(chat_request, i) for i in range(num_concurrent_users)]
+            results = [f.result() for f in concurrent.futures.as_completed(futures)]
+        
+        # Analyze results
+        successful = [r for r in results if r['success']]
+        failed = [r for r in results if not r['success']]
+        
+        assert len(successful) >= num_concurrent_users * 0.8  # 80% success rate
+        
+        # Check response times
+        response_times = [r['response_time'] for r in successful]
+        avg_response_time = sum(response_times) / len(response_times)
+        
+        assert avg_response_time < 5.0  # Average response under 5 seconds
+        assert max(response_times) < 10.0  # No response over 10 seconds
     
-    @task(1)
-    def get_stats(self):
-        """Check system statistics"""
-        with self.client.get(
-            "/api/v1/analytics/stats",
-            headers=self.auth_headers,
-            catch_response=True
-        ) as response:
-            if response.status_code == 200:
-                response.success()
-            else:
-                response.failure(f"Stats request failed: {response.status_code}")
+    def test_search_performance(self):
+        """Test search response times"""
+        client = Client(self.base_url)
+        response_times = []
+        
+        for query in self.test_queries:
+            start_time = time.time()
+            
+            result = client.predict(
+                query,
+                fn_index=3  # Search function
+            )
+            
+            elapsed = time.time() - start_time
+            response_times.append(elapsed)
+        
+        # Verify performance requirements
+        assert all(t < 2.0 for t in response_times), "Search must complete within 2 seconds"
+        assert sum(response_times) / len(response_times) < 1.0, "Average search time should be under 1 second"
+    
+    def test_document_upload_performance(self, tmp_path):
+        """Test document upload performance"""
+        client = Client(self.base_url)
+        
+        # Create test documents of varying sizes
+        test_docs = []
+        for i, size_kb in enumerate([10, 100, 1000, 5000]):  # 10KB to 5MB
+            doc_path = tmp_path / f"test_doc_{size_kb}kb.txt"
+            content = "Test content. " * (size_kb * 50)  # Approximate size
+            doc_path.write_text(content)
+            test_docs.append((doc_path, size_kb))
+        
+        # Upload and measure
+        for doc_path, size_kb in test_docs:
+            start_time = time.time()
+            
+            result = client.predict(
+                str(doc_path),
+                fn_index=1  # Upload function
+            )
+            
+            elapsed = time.time() - start_time
+            
+            # Performance requirement: < 30 seconds per document
+            assert elapsed < 30.0, f"Document {size_kb}KB took {elapsed}s to process (limit: 30s)"
+            
+            # Smaller documents should be faster
+            if size_kb < 100:
+                assert elapsed < 5.0, f"Small document {size_kb}KB should process in < 5s"
 ```
 
 ### Memory and Resource Testing

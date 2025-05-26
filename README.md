@@ -25,7 +25,7 @@ SemanticScout is a cutting-edge semantic search system that revolutionizes docum
 
 ### Prerequisites
 
-- **Python 3.11+** (3.12 recommended)
+- **Python 3.11+**
 - **OpenAI API Key** ([Get yours here](https://platform.openai.com/api-keys))
 - **Git** for version control
 
@@ -91,7 +91,7 @@ SemanticScout is a cutting-edge semantic search system that revolutionizes docum
 | Component | Technology | Version | Purpose |
 |-----------|------------|---------|---------|
 | **AI Framework** | LangChain + LangGraph | Latest | RAG pipeline orchestration |
-| **Language Model** | OpenAI GPT-4.1 | Latest | Query understanding & processing |
+| **Language Model** | OpenAI GPT-4.1 | Latest | Chat & query understanding |
 | **Embeddings** | text-embedding-3-large | 3072-dim | Semantic vector generation |
 | **Vector DB** | ChromaDB | Latest | Efficient similarity search |
 | **UI Framework** | Gradio | Latest | Interactive web interface |
@@ -127,13 +127,14 @@ SemanticScout is a cutting-edge semantic search system that revolutionizes docum
 
 ```
 SemanticScout/
-├── app.py                 # Main application entry point
-├── src/                   # Source code
-│   ├── core/             # Core business logic
-│   ├── processing/       # Document processing
-│   ├── search/           # Search engine
-│   ├── ui/               # User interface
-│   └── utils/            # Utilities
+├── app.py                 # Main Gradio application
+├── core/                 # Core business logic
+│   ├── models.py         # Data models
+│   ├── document_processor.py  # Document processing
+│   ├── embedder.py       # Embedding generation
+│   ├── search_engine.py  # Search functionality
+│   └── visualizer.py     # Visualization
+├── config/               # Configuration
 ├── tests/                # Test suites
 ├── docs/                 # Documentation
 ├── data/                 # Local data storage
@@ -209,7 +210,7 @@ docker run -p 7860:7860 -e OPENAI_API_KEY=your_key semantic-scout
 
 - **[Product Requirements](docs/PRD.md)**: Complete product specification
 - **[Technical Architecture](docs/ARCHITECTURE.md)**: Detailed system design
-- **[API Reference](docs/API_SPECIFICATION.md)**: REST API documentation
+- **[UI Guidelines](docs/UI_GUIDELINES.md)**: Interface design standards
 - **[Deployment Guide](docs/DEPLOYMENT.md)**: Production deployment instructions
 - **[Development Roadmap](docs/TODO.md)**: Feature development timeline
 

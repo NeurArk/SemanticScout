@@ -81,14 +81,34 @@ Complete implementation roadmap for SemanticScout semantic document search appli
 
 ## 🧠 PR2: Core Data Models & Exceptions
 
-**Goal**: Implement foundational data models and error handling system
+**Goal**: Implement foundational data models and error handling system for chat + search
+
+### File Structure to Create:
+```
+core/
+├── models/
+│   ├── __init__.py
+│   ├── document.py      # Document, DocumentChunk
+│   ├── chat.py          # ChatMessage, ChatContext
+│   ├── search.py        # SearchQuery, SearchResult
+│   └── visualization.py # VisualizationData
+├── exceptions/
+│   ├── __init__.py
+│   └── custom_exceptions.py
+└── utils/
+    ├── __init__.py
+    ├── validation.py
+    └── text_processing.py
+```
 
 ### Tasks:
 - [ ] **Core data models**
-  - [ ] Create Document model with all required fields
-  - [ ] Create DocumentChunk model for text segments
+  - [ ] Create Document model with id, filename, content, metadata
+  - [ ] Create DocumentChunk model for RAG (chunk_id, content, embedding)
+  - [ ] Create ChatMessage model (role, content, timestamp)
+  - [ ] Create ChatContext model (messages, retrieved_chunks)
   - [ ] Create SearchQuery model with validation
-  - [ ] Create SearchResult model with scoring
+  - [ ] Create SearchResult model with scoring and sources
   - [ ] Create VisualizationData models for plotting
 
 - [ ] **Custom exceptions**
@@ -260,41 +280,42 @@ Complete implementation roadmap for SemanticScout semantic document search appli
 
 ---
 
-## 🔍 PR6: Search Engine Implementation
+## 🔍 PR6: Chat Engine & Search Implementation (RAG)
 
-**Goal**: Build intelligent semantic search engine with ranking and filtering
+**Goal**: Build conversational AI with RAG (Retrieval Augmented Generation) combining GPT-4.1 chat and semantic search
 
 ### Tasks:
-- [ ] **Query processing**
-  - [ ] Create QueryProcessor for natural language query handling
-  - [ ] Implement query analysis and intent understanding
-  - [ ] Add query expansion and synonym handling
-  - [ ] Create query optimization and rewriting
+- [ ] **Chat Engine (GPT-4.1)**
+  - [ ] Create ChatEngine class with conversation management
+  - [ ] Implement GPT-4.1 integration
+  - [ ] Add conversation history tracking
+  - [ ] Create system prompt for document-aware responses
 
-- [ ] **Search execution**
-  - [ ] Implement semantic similarity search
-  - [ ] Add metadata filtering and faceted search
-  - [ ] Create result ranking and scoring algorithms
-  - [ ] Implement search result aggregation and deduplication
+- [ ] **RAG Pipeline**
+  - [ ] Implement RAG orchestrator combining retrieval + generation
+  - [ ] Create context builder from retrieved chunks
+  - [ ] Add source attribution in responses
+  - [ ] Implement fallback when no relevant docs found
 
-- [ ] **Result enhancement**
-  - [ ] Add context extraction and highlighting
-  - [ ] Implement snippet generation with relevant passages
-  - [ ] Create search result clustering and categorization
-  - [ ] Add "similar documents" functionality
+- [ ] **Search Engine**
+  - [ ] Create QueryProcessor for semantic search
+  - [ ] Implement similarity search with ChromaDB
+  - [ ] Add result ranking and relevance scoring
+  - [ ] Create metadata filtering capabilities
 
-- [ ] **Search optimization**
-  - [ ] Implement search result caching
-  - [ ] Add search analytics and query logging
-  - [ ] Create performance monitoring and optimization
-  - [ ] Implement search suggestion and autocomplete
+- [ ] **Response Enhancement**
+  - [ ] Add context-aware answer generation
+  - [ ] Implement citation formatting
+  - [ ] Create response validation
+  - [ ] Add conversation memory management
 
 ### Acceptance Criteria:
-- [ ] Returns relevant results for natural language queries
-- [ ] Search results include relevance scores and context
-- [ ] Supports filtering by file type, date, and metadata
-- [ ] Search completes in < 2 seconds for typical queries
-- [ ] Similar document recommendations are accurate
+- [ ] Chat responds accurately using document context
+- [ ] GPT-4.1 integration works with proper prompting
+- [ ] RAG pipeline retrieves relevant chunks for context
+- [ ] Sources are cited in chat responses
+- [ ] Search returns relevant results in < 2 seconds
+- [ ] Fallback behavior when no documents match
 
 ### Definition of Done:
 - [ ] Search accuracy validated with test queries
@@ -305,16 +326,28 @@ Complete implementation roadmap for SemanticScout semantic document search appli
 
 ---
 
-## 🎨 PR7: Gradio User Interface
+## 🎨 PR7: Gradio Chat & Search Interface
 
-**Goal**: Create professional Gradio interface following UI_GUIDELINES.md
+**Goal**: Create professional Gradio interface with chat as primary feature and search as secondary
 
 ### Tasks:
-- [ ] **Core UI components**
-  - [ ] Implement main application layout with tabs
-  - [ ] Create document upload interface with drag-and-drop
-  - [ ] Build search interface with advanced options
-  - [ ] Add results display with interactive elements
+- [ ] **Chat Interface (Primary)**
+  - [ ] Create chat interface with message history
+  - [ ] Implement chat input with submit button
+  - [ ] Add conversation display with user/assistant messages
+  - [ ] Show source citations in responses
+
+- [ ] **Document Management**
+  - [ ] Create document upload with drag-and-drop
+  - [ ] Add uploaded documents list/viewer
+  - [ ] Implement document deletion
+  - [ ] Show processing status and progress
+
+- [ ] **Search Interface (Secondary)**
+  - [ ] Build semantic search input
+  - [ ] Create search results display
+  - [ ] Add filters for file type and date
+  - [ ] Implement result highlighting
 
 - [ ] **Theme and styling**
   - [ ] Apply custom Gradio theme based on UI_GUIDELINES.md
@@ -335,11 +368,12 @@ Complete implementation roadmap for SemanticScout semantic document search appli
   - [ ] Add keyboard shortcuts for power users
 
 ### Acceptance Criteria:
-- [ ] Professional appearance suitable for client demos
-- [ ] All core functionality accessible through UI
-- [ ] Responsive design works on various screen sizes
-- [ ] User interactions provide immediate feedback
-- [ ] Error states are handled gracefully with clear messages
+- [ ] Chat interface is prominent and intuitive
+- [ ] Users can naturally converse about their documents
+- [ ] Source attribution clearly visible in chat responses
+- [ ] Document upload and management is seamless
+- [ ] Search functionality complements chat experience
+- [ ] Professional appearance for client demos
 
 ### Definition of Done:
 - [ ] UI matches design specifications in UI_GUIDELINES.md
@@ -454,7 +488,7 @@ Complete implementation roadmap for SemanticScout semantic document search appli
 - [ ] **Documentation completion**
   - [ ] Update README.md with complete setup instructions
   - [ ] Create user guide with screenshots and examples
-  - [ ] Document API endpoints and usage examples
+  - [ ] Document Gradio interface usage and features
   - [ ] Add troubleshooting guide and FAQ
 
 - [ ] **Production optimization**
@@ -512,9 +546,8 @@ Complete implementation roadmap for SemanticScout semantic document search appli
 
 ### Branch Strategy
 - `main` - Production-ready code
-- `develop` - Integration branch for features
-- `feature/PR{X}-description` - Individual PR branches
-- `hotfix/issue-description` - Critical fixes
+- `feature/PR{X}-description` - Individual PR branches (merge directly to main)
+- `hotfix/issue-description` - Critical fixes (if needed)
 
 ### PR Requirements
 - [ ] All tests passing (unit, integration, E2E)
