@@ -102,46 +102,46 @@ core/
 ```
 
 ### Tasks:
-- [ ] **Core data models**
-  - [ ] Create Document model with id, filename, content, metadata
-  - [ ] Create DocumentChunk model for RAG (chunk_id, content, embedding)
-  - [ ] Create ChatMessage model (role, content, timestamp)
-  - [ ] Create ChatContext model (messages, retrieved_chunks)
-  - [ ] Create SearchQuery model with validation
-  - [ ] Create SearchResult model with scoring and sources
-  - [ ] Create VisualizationData models for plotting
+- [x] **Core data models**
+  - [x] Create Document model with id, filename, content, metadata
+  - [x] Create DocumentChunk model for RAG (chunk_id, content, embedding)
+  - [x] Create ChatMessage model (role, content, timestamp)
+  - [x] Create ChatContext model (messages, retrieved_chunks)
+  - [x] Create SearchQuery model with validation
+  - [x] Create SearchResult model with scoring and sources
+  - [x] Create VisualizationData models for plotting
 
-- [ ] **Custom exceptions**
-  - [ ] Create DocumentProcessingError for document handling failures
-  - [ ] Create EmbeddingError for OpenAI API issues
-  - [ ] Create VectorStoreError for ChromaDB issues
-  - [ ] Create ValidationError for input validation failures
-  - [ ] Create SearchError for search operation failures
+- [x] **Custom exceptions**
+  - [x] Create DocumentProcessingError for document handling failures
+  - [x] Create EmbeddingError for OpenAI API issues
+  - [x] Create VectorStoreError for ChromaDB issues
+  - [x] Create ValidationError for input validation failures
+  - [x] Create SearchError for search operation failures
 
-- [ ] **Validation utilities**
-  - [ ] Implement file format validation (PDF, DOCX, TXT, MD)
-  - [ ] Implement file size validation with configurable limits
-  - [ ] Implement content validation and sanitization
-  - [ ] Implement search query validation and cleaning
+- [x] **Validation utilities**
+  - [x] Implement file format validation (PDF, DOCX, TXT, MD)
+  - [x] Implement file size validation with configurable limits
+  - [x] Implement content validation and sanitization
+  - [x] Implement search query validation and cleaning
 
-- [ ] **Utility functions**
-  - [ ] Create text processing utilities (cleaning, normalization)
-  - [ ] Create file handling utilities (safe file operations)
-  - [ ] Create ID generation utilities (UUIDs for documents/chunks)
-  - [ ] Create timing and performance measurement utilities
+- [x] **Utility functions**
+  - [x] Create text processing utilities (cleaning, normalization)
+  - [x] Create file handling utilities (safe file operations)
+  - [x] Create ID generation utilities (UUIDs for documents/chunks)
+  - [x] Create timing and performance measurement utilities
 
 ### Acceptance Criteria:
-- [ ] All models have proper type hints and docstrings
-- [ ] Models validate input data and raise appropriate exceptions
-- [ ] Custom exceptions provide meaningful error messages
-- [ ] Validation utilities handle edge cases gracefully
-- [ ] Utility functions are well-tested and documented
+- [x] All models have proper type hints and docstrings
+- [x] Models validate input data and raise appropriate exceptions
+- [x] Custom exceptions provide meaningful error messages
+- [x] Validation utilities handle edge cases gracefully
+- [x] Utility functions are well-tested and documented
 
 ### Definition of Done:
-- [ ] 95%+ test coverage for models and utilities
-- [ ] All validation scenarios have corresponding tests
-- [ ] Exception handling is comprehensive and informative
-- [ ] Models are compatible with serialization (JSON/Pydantic)
+- [x] 95%+ test coverage for models and utilities
+- [x] All validation scenarios have corresponding tests
+- [x] Exception handling is comprehensive and informative
+- [x] Models are compatible with serialization (JSON/Pydantic)
 
 ---
 
