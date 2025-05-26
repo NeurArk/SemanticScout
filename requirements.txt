@@ -9,7 +9,7 @@ langchain-community==0.3.24    # Community integrations
 langchain-openai==0.3.18       # OpenAI integration
 langchain-chroma==0.2.4        # ChromaDB integration
 langgraph==0.2.47              # Graph-based workflows
-openai==1.53.0                 # OpenAI SDK
+openai==1.82.0                 # OpenAI SDK - Latest as of May 2025
 
 # Vector Database
 chromadb==1.0.10
