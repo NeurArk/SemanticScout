@@ -136,7 +136,7 @@ SemanticScout leverages the latest 2025 AI/ML technologies to deliver a professi
 
 ### Dimensionality Reduction
 
-- **UMAP**: `umap-learn ^0.5.7` - Superior to t-SNE for 2025
+- **t-SNE**: Included in scikit-learn - Dimensionality reduction without heavy dependencies
 - **Scikit-learn**: `^1.6.1` - Additional ML utilities
 
 ## 🛠️ Development Tools
@@ -171,7 +171,7 @@ gradio
 # Visualization
 plotly
 networkx
-umap-learn
+# umap-learn removed - using t-SNE from scikit-learn instead
 scikit-learn
 
 # Utilities
