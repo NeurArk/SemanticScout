@@ -7,6 +7,7 @@
 [![OpenAI GPT-4.1](https://img.shields.io/badge/OpenAI-GPT--4.1-green.svg)](https://platform.openai.com/)
 [![LangChain](https://img.shields.io/badge/LangChain-latest-orange.svg)](https://python.langchain.com/)
 [![Gradio](https://img.shields.io/badge/Gradio-latest-purple.svg)](https://gradio.app/)
+![Interface Screenshot](docs/images/interface.png)
 
 ## 🎯 Overview
 
@@ -22,6 +23,16 @@ SemanticScout is a cutting-edge semantic search system that revolutionizes docum
 - **🛡️ Enterprise Ready**: Secure, scalable architecture with comprehensive testing
 
 ## 🚀 Quick Start
+
+### Option 1: Use Hosted Demo
+Visit: [https://huggingface.co/spaces/YOUR_USERNAME/SemanticScout]
+
+### Option 2: Docker Compose
+```bash
+docker-compose up --build
+```
+
+### Option 3: Manual Setup
 
 ### Prerequisites
 
@@ -83,6 +94,16 @@ SemanticScout is a cutting-edge semantic search system that revolutionizes docum
 - Browse ranked results with relevance scores
 - View contextual excerpts with highlighted matches
 - Explore document relationships through interactive visualizations
+
+## 📄 Sample Documents
+- samples/contract_example.pdf
+- samples/research_paper.pdf
+- samples/product_manual.pdf
+
+## ❓ Demo Questions
+- "What are the key terms in this contract?"
+- "Summarize the main findings"
+- "What are the payment conditions?"
 
 ## 🏗️ Architecture
 
@@ -205,6 +226,9 @@ docker run -p 7860:7860 -e OPENAI_API_KEY=your_key semantic-scout
 - **Technical Interviews**: Demonstrate semantic search understanding
 - **Portfolio Projects**: Highlight modern AI/ML development skills
 - **Proof of Concepts**: Validate semantic search for specific domains
+
+## 🆘 Backup Plan
+If something fails during the demo, restart the application and check logs in the `logs/` directory or run `docker-compose up` again.
 
 ## 📚 Documentation
 

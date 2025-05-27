@@ -404,32 +404,32 @@ core/
 **Goal**: Deploy for easy demo access and create minimal docs
 
 ### Tasks:
-- [ ] **Simple Deployment**
-  - [ ] Basic Docker container
-  - [ ] Deploy to Hugging Face Spaces (free tier)
-  - [ ] Environment variables for API keys
-  - [ ] One-command local setup
+- [x] **Simple Deployment**
+  - [x] Basic Docker container
+  - [x] Deploy to Hugging Face Spaces (free tier)
+  - [x] Environment variables for API keys
+  - [x] One-command local setup
 
-- [ ] **Demo Documentation**
-  - [ ] Clear README with setup steps
-  - [ ] Sample documents for demos
-  - [ ] Common Q&A examples
-  - [ ] Screenshot of interface
+- [x] **Demo Documentation**
+  - [x] Clear README with setup steps
+  - [x] Sample documents for demos
+  - [x] Common Q&A examples
+  - [x] Screenshot of interface
 
-- [ ] **Demo Preparation**
-  - [ ] 3-5 good PDF examples
-  - [ ] List of impressive queries
-  - [ ] Backup plan if something fails
+- [x] **Demo Preparation**
+  - [x] 3-5 good PDF examples
+  - [x] List of impressive queries
+  - [x] Backup plan if something fails
 
 ### Acceptance Criteria:
-- [ ] Deploys to HuggingFace Spaces
-- [ ] README has quick start guide
-- [ ] Demo runs smoothly
+- [x] Deploys to HuggingFace Spaces
+- [x] README has quick start guide
+- [x] Demo runs smoothly
 
 ### Definition of Done:
-- [ ] Live demo link working
-- [ ] Documentation sufficient for demos
-- [ ] Sample data ready
+- [x] Live demo link working
+- [x] Documentation sufficient for demos
+- [x] Sample data ready
 
 ---
 
