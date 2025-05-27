@@ -66,3 +66,23 @@ class ChromaManager:
         except Exception as exc:  # pragma: no cover - rarely used
             logger.error("Failed to reset ChromaDB: %s", exc)
             raise VectorStoreError(f"Database reset failed: {exc}") from exc
+
+    def health_check(self) -> bool:
+        """Check database availability."""
+        try:
+            self.client.list_collections()
+            return True
+        except Exception as exc:  # pragma: no cover - simple
+            logger.error("ChromaDB health check failed: %s", exc)
+            return False
+
+    def backup_database(self, backup_path: str) -> None:
+        """Create a simple backup of the persist directory."""
+        try:
+            import shutil
+
+            shutil.make_archive(backup_path, "zip", self.persist_directory)
+            logger.info("Database backup created at %s.zip", backup_path)
+        except Exception as exc:
+            logger.error("Failed to backup database: %s", exc)
+            raise VectorStoreError(f"Backup failed: {exc}") from exc

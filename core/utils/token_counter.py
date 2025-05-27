@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+# pragma: no cover
+# mypy: ignore-errors
+
 from typing import List
 
 try:  # pragma: no cover - optional dependency

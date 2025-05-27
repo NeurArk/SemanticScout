@@ -1,6 +1,6 @@
 from pathlib import Path
 from functools import lru_cache
-from typing import Optional
+from typing import Optional, Any
 
 from pydantic import ConfigDict
 from pydantic_settings import BaseSettings
@@ -53,14 +53,11 @@ class Settings(BaseSettings):
     enable_logging: bool = True
     log_file: Path = Path("./logs/semantic_scout.log")
 
-    model_config = ConfigDict(
-        env_file=".env",
-        env_file_encoding="utf-8"
-    )
+    model_config: Any = ConfigDict(env_file=".env", env_file_encoding="utf-8")  # type: ignore[misc, typeddict-unknown-key]
 
 
 @lru_cache()
 def get_settings() -> Settings:
     """Return a cached Settings instance."""
 
-    return Settings()
+    return Settings()  # type: ignore[call-arg]

@@ -30,22 +30,29 @@ class EmbeddingService:
         )
         self.model = settings.embedding_model
 
-    def embed_document(self, document: Document, chunks: List[DocumentChunk]) -> List[DocumentChunk]:
+    def embed_document(
+        self, document: Document, chunks: List[DocumentChunk]
+    ) -> List[DocumentChunk]:
         """Generate embeddings for all chunks of a document."""
         logger.info("Embedding document %s with %s chunks", document.id, len(chunks))
         if not chunks:
             return []
         try:
+            self.cache.clear_expired()
             embedded_chunks = self.batch_processor.process_chunks(chunks, self.model)
             missing = [c.id for c in embedded_chunks if c.embedding is None]
             if missing:
                 logger.warning("Missing embeddings for chunks: %s", missing)
             success_count = sum(1 for c in embedded_chunks if c.embedding is not None)
-            logger.info("Successfully embedded %s/%s chunks", success_count, len(chunks))
+            logger.info(
+                "Successfully embedded %s/%s chunks", success_count, len(chunks)
+            )
             return embedded_chunks
         except Exception as exc:
             logger.error("Document embedding failed: %s", exc)
-            raise EmbeddingError(f"Failed to embed document {document.id}: {exc}") from exc
+            raise EmbeddingError(
+                f"Failed to embed document {document.id}: {exc}"
+            ) from exc
 
     def embed_query(self, query: str) -> List[float]:
         """Generate embedding for a search query."""
@@ -53,7 +60,10 @@ class EmbeddingService:
         if cached is not None:
             return cached
         try:
+            self.cache.clear_expired()
             embedding = self.embedder.generate_embedding(query)
+            if len(embedding) != settings.embedding_dimension:
+                raise EmbeddingError("Invalid embedding dimension")
             self.cache.set(query, self.model, embedding)
             return embedding
         except Exception as exc:
