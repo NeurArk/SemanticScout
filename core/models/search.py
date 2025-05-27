@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 
 
 class SearchQuery(BaseModel):
@@ -16,7 +16,7 @@ class SearchQuery(BaseModel):
     filter_date_range: Optional[tuple[datetime, datetime]] = None
     include_metadata: bool = Field(default=True)
 
-    @validator("query_text")
+    @field_validator("query_text")
     def clean_query(cls, v: str) -> str:
         cleaned = v.strip()
         if not cleaned:

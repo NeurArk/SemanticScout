@@ -1,5 +1,12 @@
 # CLAUDE.md - SemanticScout Project Context
 
+## IMPORTANT: Git Commit Rules
+**NEVER** add the following to git commits:
+- 🤖 Generated with [Claude Code](https://claude.ai/code)
+- Co-Authored-By: Claude <noreply@anthropic.com>
+
+Keep commits clean and professional without AI attribution.
+
 ## Project Overview
 SemanticScout is a **"Chat with your Documents"** demo application combining:
 - **GPT-4.1 Chat Interface**: Conversational AI to discuss documents

@@ -2,6 +2,7 @@ from pathlib import Path
 from functools import lru_cache
 from typing import Optional
 
+from pydantic import ConfigDict
 from pydantic_settings import BaseSettings
 
 
@@ -52,9 +53,10 @@ class Settings(BaseSettings):
     enable_logging: bool = True
     log_file: Path = Path("./logs/semantic_scout.log")
 
-    class Config:
-        env_file = ".env"
-        env_file_encoding = "utf-8"
+    model_config = ConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8"
+    )
 
 
 @lru_cache()

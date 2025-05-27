@@ -4,7 +4,7 @@ from datetime import datetime
 import hashlib
 from typing import Any, Dict, List, Optional
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator
 
 
 class Document(BaseModel):
@@ -19,14 +19,14 @@ class Document(BaseModel):
     metadata: Dict[str, Any] = Field(default_factory=dict)
     chunk_ids: List[str] = Field(default_factory=list)
 
-    @validator("file_type")
+    @field_validator("file_type")
     def validate_file_type(cls, v: str) -> str:
         allowed = ["pdf", "docx", "txt", "md"]
         if v.lower() not in allowed:
             raise ValueError(f"File type must be one of {allowed}")
         return v.lower()
 
-    @validator("file_size")
+    @field_validator("file_size")
     def validate_file_size(cls, v: int) -> int:
         max_size = 100 * 1024 * 1024  # 100MB
         if v > max_size:
@@ -51,7 +51,7 @@ class DocumentChunk(BaseModel):
     embedding: Optional[List[float]] = Field(None, description="Vector embedding")
     metadata: Dict[str, Any] = Field(default_factory=dict)
 
-    @validator("content")
+    @field_validator("content")
     def validate_content_length(cls, v: str) -> str:
         if len(v.strip()) < 10:
             raise ValueError("Chunk content too short")

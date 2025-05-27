@@ -28,6 +28,8 @@ jobs:
         flake8 . --count --max-line-length=120 --statistics --exit-zero || true
 
     - name: Run tests
+      env:
+        OPENAI_API_KEY: "dummy-key-for-ci-testing"
       run: |
         if [ -d "tests" ] && [ "$(ls -A tests)" ]; then
           pytest
