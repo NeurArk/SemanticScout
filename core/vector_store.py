@@ -153,3 +153,23 @@ class VectorStore:
         stats = self.collection_manager.get_stats()
         stats["persist_directory"] = str(self.chroma_manager.persist_directory)
         return stats
+
+    def clear(self) -> None:
+        """Remove all documents from the vector store."""
+        try:
+            self.chroma_manager.reset_database()
+            self.collection = self.chroma_manager.get_or_create_collection(
+                name="semantic_scout_docs",
+                metadata={
+                    "description": "Document embeddings for semantic search",
+                    "embedding_model": settings.embedding_model,
+                    "embedding_dimension": settings.embedding_dimension,
+                },
+            )
+            self.collection_manager = CollectionManager(self.collection)
+            self.query_builder = QueryBuilder(self.collection)
+            self.clear_search_cache()
+            logger.info("Vector store cleared")
+        except Exception as exc:  # pragma: no cover - simple wrapper
+            logger.error("Failed to clear vector store: %s", exc)
+            raise VectorStoreError(f"Failed to clear store: {exc}") from exc
