@@ -6,6 +6,8 @@ from pathlib import Path
 from typing import List
 
 import gradio as gr
+import pandas as pd
+import logging
 
 from config.logging import setup_logging
 from core.document_processor import DocumentProcessor
@@ -17,6 +19,7 @@ from core.models.chat import ChatMessage
 
 setup_logging()
 
+logger = logging.getLogger(__name__)
 
 doc_processor = DocumentProcessor()
 embedder = EmbeddingService()
@@ -106,6 +109,47 @@ def get_system_stats() -> str:
         return "📊 Statistics unavailable"
 
 
+def create_document_type_chart() -> pd.DataFrame:
+    """Return data for bar chart of document types."""
+    try:
+        stats = vector_store.get_statistics()
+        return pd.DataFrame(
+            {
+                "Type": ["PDF", "DOCX", "TXT"],
+                "Count": [
+                    stats.get("pdf_count", 0),
+                    stats.get("docx_count", 0),
+                    stats.get("txt_count", 0),
+                ],
+            }
+        )
+    except Exception as exc:  # pragma: no cover - simple fallback
+        logger.error("Failed to create bar chart: %s", exc)
+        return pd.DataFrame({"Type": [], "Count": []})
+
+
+def create_document_scatter() -> pd.DataFrame:
+    """Return data for scatter plot of file size vs chunk count."""
+    try:
+        docs = vector_store.get_all_documents()
+        data = {
+            "Chunks": [],
+            "Size KB": [],
+            "Type": [],
+            "Filename": [],
+        }
+        for doc in docs:
+            data["Chunks"].append(doc.get("chunk_count", 0))
+            size = doc.get("metadata", {}).get("size", 0)
+            data["Size KB"].append(round(size / 1024, 2))
+            data["Type"].append(doc.get("file_type", ""))
+            data["Filename"].append(doc.get("filename", ""))
+        return pd.DataFrame(data)
+    except Exception as exc:  # pragma: no cover - simple fallback
+        logger.error("Failed to create scatter plot: %s", exc)
+        return pd.DataFrame({"Chunks": [], "Size KB": [], "Type": [], "Filename": []})
+
+
 css = """
 #chatbot {
     border-radius: 10px;
@@ -163,21 +207,36 @@ with gr.Blocks(title="SemanticScout - Chat with your Documents", css=css) as app
 
     with gr.Tab("Analytics"):
         stats_display = gr.Markdown(get_system_stats())
+        bar_chart = gr.BarPlot(
+            value=create_document_type_chart(),
+            x="Type",
+            y="Count",
+            title="Documents by Type",
+        )
+        scatter_plot = gr.ScatterPlot(
+            value=create_document_scatter(),
+            x="Chunks",
+            y="Size KB",
+            color="Type",
+            tooltip="Filename",
+            title="Size vs Chunks",
+        )
         refresh_stats = gr.Button("Refresh Stats")
 
-        refresh_stats.click(
-            fn=get_system_stats,
-            outputs=[stats_display]
-        )
+        refresh_stats.click(fn=get_system_stats, outputs=[stats_display])
+        refresh_stats.click(fn=create_document_type_chart, outputs=[bar_chart])
+        refresh_stats.click(fn=create_document_scatter, outputs=[scatter_plot])
 
-    def respond(user_message: str, chat_history: List[List[str]]) -> tuple[str, List[List[str]]]:
+    def respond(
+        user_message: str, chat_history: List[List[str]]
+    ) -> tuple[str, List[List[str]]]:
         bot_message = chat_response(user_message, chat_history)
         chat_history.append([user_message, bot_message])
         return "", chat_history
 
-    file_upload.change(fn=process_file, inputs=[file_upload], outputs=[upload_status]).then(
-        fn=get_document_list, outputs=[doc_list]
-    )
+    file_upload.change(
+        fn=process_file, inputs=[file_upload], outputs=[upload_status]
+    ).then(fn=get_document_list, outputs=[doc_list])
 
     msg.submit(respond, [msg, chatbot], [msg, chatbot])
     submit.click(respond, [msg, chatbot], [msg, chatbot])
@@ -190,4 +249,3 @@ with gr.Blocks(title="SemanticScout - Chat with your Documents", css=css) as app
 
 if __name__ == "__main__":
     app.launch(server_name="0.0.0.0", server_port=7860, share=False, show_error=True)
-

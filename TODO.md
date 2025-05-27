@@ -355,10 +355,10 @@ core/
   - [x] Basic document type breakdown (PDF, DOCX, etc.)
   - [x] Simple stats in sidebar or tab
 
-- [ ] **Optional: Simple Visualization**
-  - [ ] Basic bar chart of document types
-  - [ ] Simple scatter plot if time permits
-  - [ ] Use Gradio's built-in plot component
+- [x] **Optional: Simple Visualization**
+  - [x] Basic bar chart of document types
+  - [x] Simple scatter plot if time permits
+  - [x] Use Gradio's built-in plot component
 
 ### Acceptance Criteria:
 - [x] Stats display without errors
