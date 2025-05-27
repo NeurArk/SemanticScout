@@ -63,3 +63,29 @@ def test_clear_all_documents(mock_store: Mock) -> None:
     assert app.uploaded_files == {}
     mock_store.clear.assert_called_once()
 
+
+@patch("app.vector_store")
+def test_get_system_stats(mock_store: Mock) -> None:
+    mock_store.get_statistics.return_value = {
+        "total_documents": 2,
+        "total_chunks": 5,
+        "collection_size": 123,
+        "pdf_count": 1,
+        "docx_count": 1,
+        "txt_count": 0,
+    }
+
+    stats = app.get_system_stats()
+
+    assert "Documents: 2" in stats
+    assert "Total Chunks: 5" in stats
+    assert "PDF: 1" in stats
+    mock_store.get_statistics.assert_called_once()
+
+
+@patch("app.vector_store")
+def test_get_system_stats_error(mock_store: Mock) -> None:
+    mock_store.get_statistics.side_effect = Exception("fail")
+    stats = app.get_system_stats()
+    assert "unavailable" in stats.lower()
+

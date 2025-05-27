@@ -154,6 +154,37 @@ class VectorStore:
         stats["persist_directory"] = str(self.chroma_manager.persist_directory)
         return stats
 
+    def _get_collection_size(self) -> int:
+        """Return size on disk of the vector store in bytes."""
+        total = 0
+        try:
+            for path in self.chroma_manager.persist_directory.rglob("*"):
+                if path.is_file():
+                    total += path.stat().st_size
+        except Exception as exc:  # pragma: no cover - simple helper
+            logger.error("Failed to calculate collection size: %s", exc)
+        return total
+
+    def get_statistics(self) -> Dict[str, Any]:
+        """Return extended statistics for analytics display."""
+        try:
+            stats = self.get_stats()
+            documents = self.get_all_documents()
+            stats["pdf_count"] = sum(
+                1 for doc in documents if doc.get("file_type") == "pdf"
+            )
+            stats["docx_count"] = sum(
+                1 for doc in documents if doc.get("file_type") == "docx"
+            )
+            stats["txt_count"] = sum(
+                1 for doc in documents if doc.get("file_type") == "txt"
+            )
+            stats["collection_size"] = self._get_collection_size()
+            return stats
+        except Exception as exc:  # pragma: no cover - wrapper
+            logger.error("Failed to get statistics: %s", exc)
+            return {"error": str(exc)}
+
     def clear(self) -> None:
         """Remove all documents from the vector store."""
         try:

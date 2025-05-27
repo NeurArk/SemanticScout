@@ -85,6 +85,27 @@ def clear_all_documents() -> str:
         return f"❌ Error clearing documents: {exc}"
 
 
+def get_system_stats() -> str:
+    """Get simple system statistics."""
+    try:
+        stats = vector_store.get_statistics()
+
+        return f"""
+        📊 **System Statistics**
+
+        • Documents: {stats.get('total_documents', 0)}
+        • Total Chunks: {stats.get('total_chunks', 0)}
+        • Vector Store Size: {stats.get('collection_size', 0)}
+
+        **Document Types:**
+        • PDF: {stats.get('pdf_count', 0)}
+        • DOCX: {stats.get('docx_count', 0)}
+        • TXT: {stats.get('txt_count', 0)}
+        """
+    except Exception:  # pragma: no cover - simple fallback
+        return "📊 Statistics unavailable"
+
+
 css = """
 #chatbot {
     border-radius: 10px;
@@ -139,6 +160,15 @@ with gr.Blocks(title="SemanticScout - Chat with your Documents", css=css) as app
 
             refresh_btn = gr.Button("Refresh List", size="sm")
             clear_docs_btn = gr.Button("Clear All Documents", variant="stop", size="sm")
+
+    with gr.Tab("Analytics"):
+        stats_display = gr.Markdown(get_system_stats())
+        refresh_stats = gr.Button("Refresh Stats")
+
+        refresh_stats.click(
+            fn=get_system_stats,
+            outputs=[stats_display]
+        )
 
     def respond(user_message: str, chat_history: List[List[str]]) -> tuple[str, List[List[str]]]:
         bot_message = chat_response(user_message, chat_history)
