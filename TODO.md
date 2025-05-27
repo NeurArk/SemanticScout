@@ -349,11 +349,11 @@ core/
 **Goal**: Add simple statistics to show system capabilities
 
 ### Tasks:
-- [ ] **Simple Stats Display**
-  - [ ] Show number of documents uploaded
-  - [ ] Display total chunks in database
-  - [ ] Basic document type breakdown (PDF, DOCX, etc.)
-  - [ ] Simple stats in sidebar or tab
+- [x] **Simple Stats Display**
+  - [x] Show number of documents uploaded
+  - [x] Display total chunks in database
+  - [x] Basic document type breakdown (PDF, DOCX, etc.)
+  - [x] Simple stats in sidebar or tab
 
 - [ ] **Optional: Simple Visualization**
   - [ ] Basic bar chart of document types
@@ -361,13 +361,13 @@ core/
   - [ ] Use Gradio's built-in plot component
 
 ### Acceptance Criteria:
-- [ ] Stats display without errors
-- [ ] Information is accurate
-- [ ] Doesn't slow down main chat interface
+- [x] Stats display without errors
+- [x] Information is accurate
+- [x] Doesn't slow down main chat interface
 
 ### Definition of Done:
-- [ ] Basic stats working
-- [ ] No impact on main functionality
+- [x] Basic stats working
+- [x] No impact on main functionality
 
 ---
 

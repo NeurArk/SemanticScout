@@ -81,3 +81,38 @@ def test_delete_and_get_chunks(vector_store, sample_document, sample_chunks):
     assert retrieved[0].id == ids[0]
     assert vector_store.delete_document(sample_document.id) is True
     assert vector_store.get_all_documents() == []
+
+
+def test_get_statistics(vector_store, sample_document, sample_chunks):
+    vector_store.store_document(sample_document, sample_chunks)
+
+    doc2 = Document(
+        id="doc_456",
+        filename="other.docx",
+        file_type="docx",
+        file_size=2000,
+        content="More text",
+    )
+    chunks2 = [
+        DocumentChunk(
+            id=f"chunk_b{i}",
+            document_id="doc_456",
+            content=f"Chunk text {i}",
+            chunk_index=i,
+            start_char=i * 50,
+            end_char=(i + 1) * 50,
+            embedding=[0.1] * 3072,
+        )
+        for i in range(2)
+    ]
+
+    vector_store.store_document(doc2, chunks2)
+
+    stats = vector_store.get_statistics()
+
+    assert stats["total_documents"] == 2
+    assert stats["total_chunks"] == len(sample_chunks) + len(chunks2)
+    assert stats["pdf_count"] == 1
+    assert stats["docx_count"] == 1
+    assert stats["txt_count"] == 0
+    assert "collection_size" in stats
