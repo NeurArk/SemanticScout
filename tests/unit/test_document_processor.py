@@ -71,7 +71,7 @@ def test_retry_logic(monkeypatch, sample_pdf: str) -> None:
             call_count["count"] += 1
             if call_count["count"] < 2:
                 raise DocumentProcessingError("fail")
-            return {"content": "ok", "metadata": {}}
+            return {"content": "This is test content after retry", "metadata": {}}
 
     monkeypatch.setattr(processor, "_get_extractor", lambda _p: FailingExtractor())
     doc, _ = processor.process_document(sample_pdf, retries=2)
