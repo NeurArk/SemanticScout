@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from types import SimpleNamespace
 from unittest.mock import Mock, patch
+import pandas as pd
 
 import app
 from core.models.document import Document, DocumentChunk
@@ -10,7 +11,9 @@ from core.models.document import Document, DocumentChunk
 @patch("app.vector_store")
 @patch("app.embedder")
 @patch("app.doc_processor")
-def test_process_file_success(mock_processor: Mock, mock_embedder: Mock, mock_store: Mock) -> None:
+def test_process_file_success(
+    mock_processor: Mock, mock_embedder: Mock, mock_store: Mock
+) -> None:
     app.uploaded_files.clear()
     file_obj = SimpleNamespace(name="/tmp/test.txt")
 
@@ -89,3 +92,31 @@ def test_get_system_stats_error(mock_store: Mock) -> None:
     stats = app.get_system_stats()
     assert "unavailable" in stats.lower()
 
+
+@patch("app.vector_store")
+def test_create_document_type_chart(mock_store: Mock) -> None:
+    mock_store.get_statistics.return_value = {
+        "pdf_count": 2,
+        "docx_count": 1,
+        "txt_count": 0,
+    }
+
+    df = app.create_document_type_chart()
+    assert isinstance(df, pd.DataFrame)
+    assert df.loc[df["Type"] == "PDF", "Count"].iloc[0] == 2
+
+
+@patch("app.vector_store")
+def test_create_document_scatter(mock_store: Mock) -> None:
+    mock_store.get_all_documents.return_value = [
+        {
+            "filename": "doc.pdf",
+            "file_type": "pdf",
+            "chunk_count": 3,
+            "metadata": {"size": 2048},
+        }
+    ]
+
+    df = app.create_document_scatter()
+    assert isinstance(df, pd.DataFrame)
+    assert df["Chunks"].iloc[0] == 3
