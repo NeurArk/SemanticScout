@@ -1,593 +1,307 @@
-# PR7: Gradio Chat & Search Interface - Detailed Implementation Guide
+# PR7: Gradio Interface - Simple Demo-Focused Guide
 
 ## Overview
-This PR implements the Gradio web interface with chat as the primary feature and search as secondary, following the UI guidelines for a professional appearance.
+Create a clean, professional Gradio interface that impresses during demos. Focus on reliability over features.
 
-## Prerequisites
-- PR2-6 completed (all backend functionality)
-- Gradio installed
-- UI_GUIDELINES.md reviewed
+## Goal
+Build an interface where:
+1. Users can drag & drop documents
+2. Chat about their documents naturally
+3. See which sources were used
+4. Everything works smoothly
 
-## File Structure
+## Single File Approach
 ```
-app.py                       # Main Gradio application
-ui/
-├── __init__.py
-├── components/
-│   ├── chat_interface.py    # Chat UI component
-│   ├── document_manager.py  # Document upload/management
-│   ├── search_interface.py  # Search UI component
-│   └── visualization.py     # Visualization component
-├── theme.py                 # Custom Gradio theme
-├── callbacks.py             # Event handlers
-└── utils.py                 # UI utilities
+app.py              # Everything in one file for simplicity
 ```
 
-## Detailed Implementation
+## Implementation Guide
 
-### 1. Custom Theme (`ui/theme.py`)
+### Complete Gradio App (`app.py`)
 
 ```python
 import gradio as gr
+import os
+from typing import List, Tuple
+from pathlib import Path
 
-def create_custom_theme():
-    """Create professional theme based on UI guidelines."""
+from core.document_processor import DocumentProcessor
+from core.embedder import EmbeddingService
+from core.vector_store import VectorStore
+from core.rag_pipeline import RAGPipeline
+from core.models.chat import ChatMessage
+
+# Initialize services
+doc_processor = DocumentProcessor()
+embedder = EmbeddingService()
+vector_store = VectorStore()
+rag_pipeline = RAGPipeline()
+
+# Store uploaded files info
+uploaded_files = {}
+
+def process_file(file) -> str:
+    """Process uploaded file and add to vector store."""
+    try:
+        if file is None:
+            return "No file uploaded"
+        
+        # Save uploaded file
+        file_path = file.name
+        filename = Path(file_path).name
+        
+        # Check if already processed
+        if filename in uploaded_files:
+            return f"✓ {filename} already processed"
+        
+        # Process document
+        doc, chunks = doc_processor.process_document(file_path)
+        
+        # Generate embeddings
+        embedded_chunks = embedder.embed_document(doc, chunks)
+        
+        # Store in vector database
+        vector_store.add_document(doc, embedded_chunks)
+        
+        # Track uploaded file
+        uploaded_files[filename] = {
+            'doc_id': doc.id,
+            'chunks': len(chunks)
+        }
+        
+        return f"✓ Successfully processed {filename} ({len(chunks)} chunks)"
+        
+    except Exception as e:
+        return f"❌ Error processing file: {str(e)}"
+
+def chat_response(message: str, history: List[List[str]]) -> str:
+    """Generate chat response using RAG."""
+    try:
+        # Convert history to ChatMessage format
+        chat_history = []
+        for user_msg, assistant_msg in history:
+            chat_history.append(ChatMessage(role="user", content=user_msg))
+            chat_history.append(ChatMessage(role="assistant", content=assistant_msg))
+        
+        # Get response from RAG pipeline
+        answer, sources = rag_pipeline.query(message, chat_history)
+        
+        return answer
+        
+    except Exception as e:
+        return f"Sorry, I encountered an error: {str(e)}"
+
+def get_document_list() -> str:
+    """Get list of uploaded documents."""
+    if not uploaded_files:
+        return "No documents uploaded yet"
     
-    return gr.themes.Soft(
-        primary_hue="blue",
-        secondary_hue="gray",
-        neutral_hue="gray",
-        text_size="md",
-        spacing_size="md",
-        radius_size="md",
-        font=gr.themes.GoogleFont("Inter")
-    ).set(
-        # Primary colors
-        body_background_fill="*neutral_50",
-        body_background_fill_dark="*neutral_900",
+    doc_list = "📄 **Uploaded Documents:**\n\n"
+    for filename, info in uploaded_files.items():
+        doc_list += f"• {filename} ({info['chunks']} chunks)\n"
+    
+    return doc_list
+
+def clear_all_documents() -> str:
+    """Clear all documents from vector store."""
+    global uploaded_files
+    
+    try:
+        # Clear vector store
+        vector_store.clear()
         
-        # Chat interface colors
-        chatbot_code_background_color="*neutral_100",
-        chatbot_code_background_color_dark="*neutral_800",
+        # Clear tracking
+        uploaded_files = {}
         
-        # Button styles
-        button_primary_background_fill="*primary_500",
-        button_primary_background_fill_hover="*primary_600",
-        button_primary_text_color="white",
+        return "✓ All documents cleared"
+    except Exception as e:
+        return f"❌ Error clearing documents: {str(e)}"
+
+# Create Gradio interface
+with gr.Blocks(title="SemanticScout - Chat with your Documents") as app:
+    gr.Markdown(
+        """
+        # 🔍 SemanticScout
+        ### Chat naturally with your documents using AI
         
-        # Input styles
-        input_background_fill="white",
-        input_border_color="*neutral_300",
-        input_border_color_focus="*primary_500",
-        
-        # Panel styles
-        panel_background_fill="white",
-        panel_border_color="*neutral_200",
-        
-        # Shadow and elevation
-        shadow_drop="0 2px 4px 0 rgb(0 0 0 / 0.05)",
-        shadow_drop_lg="0 10px 15px -3px rgb(0 0 0 / 0.1)",
+        Upload PDFs, Word docs, or text files and ask questions about their content.
+        """
     )
-```
-
-### 2. Chat Interface (`ui/components/chat_interface.py`)
-
-```python
-import gradio as gr
-from typing import List, Tuple, Optional
-from core.chat_engine import ChatEngine
-import logging
-
-logger = logging.getLogger(__name__)
-
-class ChatInterface:
-    """Chat interface component."""
     
-    def __init__(self, chat_engine: ChatEngine):
-        self.chat_engine = chat_engine
-    
-    def create_interface(self):
-        """Create the chat interface component."""
-        
-        with gr.Column(scale=2, elem_id="chat-column"):
-            gr.Markdown("## 💬 Chat with your Documents")
-            
-            # Chatbot display
+    with gr.Row():
+        with gr.Column(scale=3):
+            # Chat interface
             chatbot = gr.Chatbot(
-                label="Conversation",
-                elem_id="chatbot",
                 height=500,
                 show_label=False,
-                avatar_images=("🧑", "🤖")
+                elem_id="chatbot"
             )
             
-            # Chat input
+            msg = gr.Textbox(
+                label="Ask a question about your documents",
+                placeholder="e.g., What are the main findings? What does the contract say about termination?",
+                lines=2
+            )
+            
             with gr.Row():
-                msg_input = gr.Textbox(
-                    label="Your message",
-                    placeholder="Ask anything about your documents...",
-                    lines=2,
-                    scale=4,
-                    elem_id="chat-input"
-                )
-                
-                submit_btn = gr.Button(
-                    "Send", 
-                    variant="primary",
-                    scale=1,
-                    elem_id="send-button"
-                )
-            
-            # Chat controls
-            with gr.Row():
-                clear_btn = gr.Button("🗑️ Clear Chat", size="sm")
-                examples = gr.Examples(
-                    examples=[
-                        "What are the main topics in these documents?",
-                        "Summarize the key findings",
-                        "What does the document say about...",
-                        "Compare the information across documents"
-                    ],
-                    inputs=msg_input,
-                    label="Example questions"
-                )
-            
-            # Status display
-            status = gr.Markdown("", elem_id="chat-status")
-            
-            return chatbot, msg_input, submit_btn, clear_btn, status
-    
-    def handle_message(self, message: str, history: List[Tuple[str, str]]) -> Tuple[List[Tuple[str, str]], str]:
-        """Handle chat message submission."""
-        if not message.strip():
-            return history, ""
+                submit = gr.Button("Send", variant="primary")
+                clear = gr.Button("Clear Chat")
         
-        try:
-            # Generate response
-            response, sources = self.chat_engine.chat(message)
+        with gr.Column(scale=1):
+            # Document management
+            gr.Markdown("### 📁 Document Management")
             
-            # Update history
-            history.append((message, response))
+            file_upload = gr.File(
+                label="Upload Document",
+                file_types=[".pdf", ".docx", ".txt", ".md"],
+                type="filepath"
+            )
             
-            return history, ""
+            upload_status = gr.Textbox(
+                label="Status",
+                interactive=False,
+                lines=2
+            )
             
-        except Exception as e:
-            logger.error(f"Chat error: {e}")
-            error_msg = "I encountered an error processing your message. Please try again."
-            history.append((message, error_msg))
-            return history, ""
+            doc_list = gr.Markdown(get_document_list())
+            
+            refresh_btn = gr.Button("Refresh List", size="sm")
+            clear_docs_btn = gr.Button("Clear All Documents", variant="stop", size="sm")
     
-    def clear_chat(self) -> List:
-        """Clear chat history."""
-        self.chat_engine.clear_history()
-        return []
-```
+    # Event handlers
+    def respond(message, chat_history):
+        bot_message = chat_response(message, chat_history)
+        chat_history.append((message, bot_message))
+        return "", chat_history
+    
+    # File upload handler
+    file_upload.change(
+        fn=process_file,
+        inputs=[file_upload],
+        outputs=[upload_status]
+    ).then(
+        fn=get_document_list,
+        outputs=[doc_list]
+    )
+    
+    # Chat handlers
+    msg.submit(respond, [msg, chatbot], [msg, chatbot])
+    submit.click(respond, [msg, chatbot], [msg, chatbot])
+    clear.click(lambda: None, None, chatbot, queue=False)
+    
+    # Document management handlers
+    refresh_btn.click(
+        fn=get_document_list,
+        outputs=[doc_list]
+    )
+    
+    clear_docs_btn.click(
+        fn=clear_all_documents,
+        outputs=[upload_status]
+    ).then(
+        fn=get_document_list,
+        outputs=[doc_list]
+    )
 
-### 3. Document Manager (`ui/components/document_manager.py`)
-
-```python
-import gradio as gr
-from typing import List, Optional, Dict, Any
-from pathlib import Path
-import logging
-from core.document_processor import DocumentProcessor
-from core.embedder import EmbeddingService
-from core.vector_store import VectorStore
-
-logger = logging.getLogger(__name__)
-
-class DocumentManager:
-    """Document upload and management interface."""
-    
-    def __init__(self, document_processor: DocumentProcessor,
-                 embedding_service: EmbeddingService,
-                 vector_store: VectorStore):
-        self.document_processor = document_processor
-        self.embedding_service = embedding_service
-        self.vector_store = vector_store
-    
-    def create_interface(self):
-        """Create document management interface."""
-        
-        with gr.Column(elem_id="document-column"):
-            gr.Markdown("## 📄 Document Management")
-            
-            # Upload interface
-            with gr.Box():
-                file_upload = gr.File(
-                    label="Upload Documents",
-                    file_types=[".pdf", ".docx", ".txt", ".md"],
-                    file_count="multiple",
-                    elem_id="file-upload"
-                )
-                
-                upload_btn = gr.Button(
-                    "📤 Process Documents",
-                    variant="primary",
-                    elem_id="upload-button"
-                )
-            
-            # Progress display
-            progress = gr.Progress(elem_id="upload-progress")
-            status = gr.Markdown("", elem_id="upload-status")
-            
-            # Document list
-            with gr.Box():
-                gr.Markdown("### 📚 Uploaded Documents")
-                doc_list = gr.DataFrame(
-                    headers=["Filename", "Type", "Chunks", "Status"],
-                    datatype=["str", "str", "number", "str"],
-                    elem_id="document-list",
-                    interactive=False
-                )
-                
-                with gr.Row():
-                    refresh_btn = gr.Button("🔄 Refresh", size="sm")
-                    delete_btn = gr.Button("🗑️ Delete Selected", size="sm", variant="stop")
-            
-            # Stats display
-            stats = gr.JSON(label="Storage Statistics", elem_id="storage-stats")
-            
-            return file_upload, upload_btn, progress, status, doc_list, refresh_btn, delete_btn, stats
-    
-    def process_documents(self, files: List[str], progress=gr.Progress()) -> str:
-        """Process uploaded documents."""
-        if not files:
-            return "No files selected."
-        
-        results = []
-        total_files = len(files)
-        
-        for i, file_path in enumerate(files):
-            progress((i + 1) / total_files, f"Processing {Path(file_path).name}...")
-            
-            try:
-                # Process document
-                document, chunks = self.document_processor.process_document(file_path)
-                
-                # Generate embeddings
-                embedded_chunks = self.embedding_service.embed_document(document, chunks)
-                
-                # Store in vector database
-                self.vector_store.store_document(document, embedded_chunks)
-                
-                results.append(f"✅ {document.filename}: {len(chunks)} chunks")
-                
-            except Exception as e:
-                logger.error(f"Failed to process {file_path}: {e}")
-                results.append(f"❌ {Path(file_path).name}: {str(e)}")
-        
-        return "\n".join(results)
-    
-    def get_document_list(self) -> List[List[Any]]:
-        """Get list of stored documents."""
-        try:
-            documents = self.vector_store.get_all_documents()
-            
-            return [
-                [
-                    doc['filename'],
-                    doc['file_type'].upper(),
-                    doc['chunk_count'],
-                    "✅ Indexed"
-                ]
-                for doc in documents
-            ]
-        except Exception as e:
-            logger.error(f"Failed to get documents: {e}")
-            return []
-    
-    def get_stats(self) -> Dict[str, Any]:
-        """Get storage statistics."""
-        try:
-            return self.vector_store.get_stats()
-        except Exception as e:
-            logger.error(f"Failed to get stats: {e}")
-            return {"error": str(e)}
-```
-
-### 4. Main Application (`app.py`)
-
-```python
-import gradio as gr
-import logging
-from pathlib import Path
-from ui.theme import create_custom_theme
-from ui.components.chat_interface import ChatInterface
-from ui.components.document_manager import DocumentManager
-from ui.components.search_interface import SearchInterface
-from core.document_processor import DocumentProcessor
-from core.embedder import EmbeddingService
-from core.vector_store import VectorStore
-from core.chat_engine import ChatEngine
-from core.search_engine import SearchEngine
-from config.settings import settings
-
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
-
-def create_app():
-    """Create and configure the Gradio application."""
-    
-    # Initialize services
-    logger.info("Initializing services...")
-    
-    document_processor = DocumentProcessor()
-    embedding_service = EmbeddingService()
-    vector_store = VectorStore()
-    chat_engine = ChatEngine(vector_store, embedding_service)
-    search_engine = SearchEngine(vector_store, embedding_service)
-    
-    # Create UI components
-    chat_interface = ChatInterface(chat_engine)
-    doc_manager = DocumentManager(document_processor, embedding_service, vector_store)
-    search_interface = SearchInterface(search_engine)
-    
-    # Create custom theme
-    theme = create_custom_theme()
-    
-    # Build interface
-    with gr.Blocks(
-        title="SemanticScout - Chat with your Documents",
-        theme=theme,
-        css="""
-        #chat-column { flex: 2; }
-        #document-column { flex: 1; }
-        #chatbot { height: 500px; }
-        #chat-input { font-size: 16px; }
-        .gradio-container { max-width: 1400px; margin: auto; }
-        """
-    ) as app:
-        
-        # Header
-        gr.Markdown(
-            """
-            # 🔍 SemanticScout
-            ### AI-Powered Document Chat & Search
-            
-            Upload your documents and start asking questions. I'll help you explore and understand your content.
-            """,
-            elem_id="header"
-        )
-        
-        # Main layout
-        with gr.Row():
-            # Left: Chat interface (primary)
-            chat_ui = chat_interface.create_interface()
-            chatbot, msg_input, submit_btn, clear_btn, chat_status = chat_ui
-            
-            # Right: Document management + Search
-            with gr.Column(scale=1):
-                with gr.Tabs():
-                    # Documents tab
-                    with gr.TabItem("📄 Documents"):
-                        doc_ui = doc_manager.create_interface()
-                        (file_upload, upload_btn, progress, upload_status, 
-                         doc_list, refresh_btn, delete_btn, stats) = doc_ui
-                    
-                    # Search tab
-                    with gr.TabItem("🔍 Search"):
-                        search_ui = search_interface.create_interface()
-                        search_input, search_btn, search_results = search_ui
-                    
-                    # Visualization tab (placeholder)
-                    with gr.TabItem("📊 Visualize"):
-                        gr.Markdown("Document visualization coming soon...")
-        
-        # Event handlers
-        
-        # Chat events
-        submit_btn.click(
-            fn=chat_interface.handle_message,
-            inputs=[msg_input, chatbot],
-            outputs=[chatbot, msg_input],
-            show_progress=True
-        )
-        
-        msg_input.submit(
-            fn=chat_interface.handle_message,
-            inputs=[msg_input, chatbot],
-            outputs=[chatbot, msg_input],
-            show_progress=True
-        )
-        
-        clear_btn.click(
-            fn=chat_interface.clear_chat,
-            outputs=[chatbot]
-        )
-        
-        # Document events
-        upload_btn.click(
-            fn=doc_manager.process_documents,
-            inputs=[file_upload],
-            outputs=[upload_status],
-            show_progress=True
-        ).then(
-            fn=doc_manager.get_document_list,
-            outputs=[doc_list]
-        ).then(
-            fn=doc_manager.get_stats,
-            outputs=[stats]
-        )
-        
-        refresh_btn.click(
-            fn=doc_manager.get_document_list,
-            outputs=[doc_list]
-        )
-        
-        # Search events
-        search_btn.click(
-            fn=search_interface.search,
-            inputs=[search_input],
-            outputs=[search_results],
-            show_progress=True
-        )
-        
-        # Load initial data
-        app.load(
-            fn=doc_manager.get_document_list,
-            outputs=[doc_list]
-        )
-        
-        app.load(
-            fn=doc_manager.get_stats,
-            outputs=[stats]
-        )
-    
-    return app
-
-# Entry point
+# Launch configuration
 if __name__ == "__main__":
-    logger.info("Starting SemanticScout...")
-    
-    app = create_app()
-    
     app.launch(
         server_name="0.0.0.0",
         server_port=7860,
-        share=False,
-        favicon_path="assets/favicon.ico" if Path("assets/favicon.ico").exists() else None
+        share=False,  # Set to True for public URL
+        show_error=True
     )
 ```
 
-### 5. Search Interface (`ui/components/search_interface.py`)
+## Styling (Optional CSS)
 
 ```python
-import gradio as gr
-from typing import List, Dict, Any
-from core.search_engine import SearchEngine
-import logging
-
-logger = logging.getLogger(__name__)
-
-class SearchInterface:
-    """Search interface component."""
-    
-    def __init__(self, search_engine: SearchEngine):
-        self.search_engine = search_engine
-    
-    def create_interface(self):
-        """Create search interface."""
-        
-        gr.Markdown("### 🔍 Semantic Search")
-        
-        search_input = gr.Textbox(
-            label="Search Query",
-            placeholder="Search your documents...",
-            lines=2
-        )
-        
-        with gr.Row():
-            search_btn = gr.Button("Search", variant="primary")
-            
-            # Filters
-            file_type_filter = gr.CheckboxGroup(
-                choices=["PDF", "DOCX", "TXT", "MD"],
-                label="File Types",
-                value=None
-            )
-        
-        # Results display
-        search_results = gr.HTML(
-            label="Search Results",
-            elem_id="search-results"
-        )
-        
-        return search_input, search_btn, search_results
-    
-    def search(self, query: str) -> str:
-        """Execute search and format results."""
-        if not query.strip():
-            return "<p>Enter a search query.</p>"
-        
-        try:
-            # Execute search
-            response = self.search_engine.search(query, max_results=10)
-            
-            # Format results as HTML
-            if not response.results:
-                return "<p>No results found.</p>"
-            
-            html_parts = [f"<h4>Found {response.total_results} results in {response.search_time_ms:.0f}ms</h4>"]
-            
-            for i, result in enumerate(response.results, 1):
-                source = result.source_info
-                html_parts.append(f"""
-                <div class="search-result">
-                    <h5>{i}. {source['filename']} (Score: {result.score:.2%})</h5>
-                    <p>{result.highlighted_content}</p>
-                    <small>Chunk {source['chunk_index']}</small>
-                </div>
-                <hr>
-                """)
-            
-            return "".join(html_parts)
-            
-        except Exception as e:
-            logger.error(f"Search error: {e}")
-            return f"<p>Search error: {str(e)}</p>"
-```
-
-## CSS Styling
-
-```css
-/* Custom CSS for professional appearance */
-.gradio-container {
-    font-family: 'Inter', sans-serif;
-}
-
-#header {
-    text-align: center;
-    padding: 2rem 0;
-    border-bottom: 1px solid #e5e7eb;
-}
-
+# Add custom CSS for professional look
+css = """
 #chatbot {
-    border-radius: 8px;
-    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    border: 1px solid #e0e0e0;
 }
+.message {
+    padding: 10px;
+    margin: 5px;
+    border-radius: 5px;
+}
+"""
 
-#chat-input {
-    border-radius: 6px;
-}
-
-#send-button {
-    min-width: 100px;
-}
-
-.search-result {
-    padding: 1rem;
-    margin-bottom: 1rem;
-    background: #f9fafb;
-    border-radius: 6px;
-}
-
-.search-result h5 {
-    margin: 0 0 0.5rem 0;
-    color: #1f2937;
-}
-
-.search-result p {
-    margin: 0.5rem 0;
-    color: #4b5563;
-}
-
-.search-result small {
-    color: #9ca3af;
-}
+# Add to Blocks:
+with gr.Blocks(title="SemanticScout", css=css) as app:
+    ...
 ```
 
-## Success Criteria
+## Key Features for Demo Success
 
-1. ✅ Chat interface is prominent and intuitive
-2. ✅ Document upload with drag-and-drop works
-3. ✅ Real-time processing feedback
-4. ✅ Search complements chat functionality
-5. ✅ Professional appearance matches UI guidelines
-6. ✅ Responsive design works on different screens
-7. ✅ All interactions provide immediate feedback
-8. ✅ Error states handled gracefully
+1. **Drag & Drop Upload**: Works instantly, shows progress
+2. **Clear Status Messages**: ✓ for success, ❌ for errors
+3. **Document List**: Always visible, shows what's loaded
+4. **Clean Chat**: Focus on conversation, not UI complexity
+5. **Error Handling**: Graceful messages, no crashes
+
+## What We're NOT Building
+
+- ❌ Complex search interface (search is through chat)
+- ❌ Document preview/viewer
+- ❌ User authentication
+- ❌ Advanced filters
+- ❌ Export functionality
+- ❌ Settings/configuration
+
+## Testing the Interface
+
+```python
+# Quick test script
+def test_ui_flow():
+    """Test basic UI flow works."""
+    
+    # 1. Upload a test PDF
+    test_file = "samples/test.pdf"
+    status = process_file(test_file)
+    assert "Successfully processed" in status
+    
+    # 2. Ask a question
+    response = chat_response("What is this document about?", [])
+    assert len(response) > 0
+    
+    # 3. Clear documents
+    clear_status = clear_all_documents()
+    assert "cleared" in clear_status
+```
+
+## Demo Script
+
+1. **Opening**: "Let me show you SemanticScout - upload any document and chat with it naturally"
+
+2. **Upload**: Drag & drop a PDF - "Watch how quickly it processes this contract"
+
+3. **First Question**: "What are the payment terms in this contract?"
+   - Show how it finds specific information
+   - Point out source attribution
+
+4. **Follow-up**: "Are there any penalties for late payment?"
+   - Demonstrate context understanding
+
+5. **Multiple Docs**: Upload another document
+   - "Now let's compare across documents"
+   - "What are the differences in payment terms between the two contracts?"
+
+## Common Demo Issues & Fixes
+
+1. **Slow Upload**: Pre-process documents before demo
+2. **API Errors**: Have offline fallback responses
+3. **Empty Results**: Prepare documents with rich content
+4. **UI Glitches**: Test on demo machine beforehand
+
+## Success Metrics
+
+- [ ] Zero errors during 15-minute demo
+- [ ] Upload → Process → Chat in < 30 seconds
+- [ ] Professional appearance
+- [ ] Smooth interactions
+- [ ] Clear value demonstration
+
+Remember: Less is more. A simple interface that works perfectly beats a complex one with bugs.

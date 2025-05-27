@@ -1,146 +1,83 @@
-# PR8: Visualization & Analytics - Detailed Implementation Guide
+# PR8: Basic Analytics
 
 ## Overview
-This PR implements document visualization features including similarity plots and relationship networks.
 
-## Prerequisites
-- PR2-7 completed
-- plotly, networkx, umap-learn installed
+Add simple statistics display.
 
-## Key Components
+## Goal
 
-### 1. UMAP Visualization (`core/visualizer.py`)
+Show basic system metrics that impress during demos without complexity.
+
+## Simple Implementation
+
+### Add to `app.py`
 
 ```python
-import numpy as np
-from umap import UMAP
-import plotly.graph_objects as go
-from typing import List, Dict, Any
-from core.models.document import Document, DocumentChunk
+def get_system_stats() -> str:
+    """Get simple system statistics."""
+    try:
+        stats = vector_store.get_statistics()
 
-class DocumentVisualizer:
-    """Create document visualizations."""
-    
-    def create_similarity_plot(self, documents: List[Dict], embeddings: List[List[float]]) -> go.Figure:
-        """Create 2D scatter plot of document similarity."""
-        
-        # Reduce dimensions with UMAP
-        reducer = UMAP(n_components=2, random_state=42)
-        coords = reducer.fit_transform(np.array(embeddings))
-        
-        # Create plotly figure
-        fig = go.Figure(data=[
-            go.Scatter(
-                x=coords[:, 0],
-                y=coords[:, 1],
-                mode='markers+text',
-                marker=dict(size=10, color='blue'),
-                text=[d['filename'] for d in documents],
-                textposition="top center"
-            )
-        ])
-        
-        fig.update_layout(
-            title="Document Similarity Map",
-            xaxis_title="UMAP 1",
-            yaxis_title="UMAP 2",
-            hovermode='closest'
-        )
-        
-        return fig
+        return f"""
+        📊 **System Statistics**
+
+        • Documents: {stats.get('total_documents', 0)}
+        • Total Chunks: {stats.get('total_chunks', 0)}
+        • Vector Store Size: {stats.get('collection_size', 0)}
+
+        **Document Types:**
+        • PDF: {stats.get('pdf_count', 0)}
+        • DOCX: {stats.get('docx_count', 0)}
+        • TXT: {stats.get('txt_count', 0)}
+        """
+    except:
+        return "📊 Statistics unavailable"
+
+# Add to Gradio interface
+with gr.Tab("Analytics"):
+    stats_display = gr.Markdown(get_system_stats())
+    refresh_stats = gr.Button("Refresh Stats")
+
+    refresh_stats.click(
+        fn=get_system_stats,
+        outputs=[stats_display]
+    )
 ```
 
-### 2. Network Graph
+## What We're NOT Building
+
+- ❌ Complex visualizations (UMAP, t-SNE)
+- ❌ Interactive graphs
+- ❌ Performance monitoring
+- ❌ Usage analytics
+- ❌ Export functionality
+
+## If You Have Extra Time
+
+Add a simple bar chart using Gradio's built-in plotting:
 
 ```python
-import networkx as nx
-from sklearn.metrics.pairwise import cosine_similarity
+import pandas as pd
 
-def create_document_network(embeddings: List[List[float]], 
-                          documents: List[Dict], 
-                          threshold: float = 0.8) -> go.Figure:
-    """Create network graph of document relationships."""
-    
-    # Calculate similarity matrix
-    similarity_matrix = cosine_similarity(embeddings)
-    
-    # Create graph
-    G = nx.Graph()
-    
-    # Add nodes
-    for i, doc in enumerate(documents):
-        G.add_node(i, label=doc['filename'])
-    
-    # Add edges based on similarity
-    for i in range(len(documents)):
-        for j in range(i+1, len(documents)):
-            if similarity_matrix[i, j] > threshold:
-                G.add_edge(i, j, weight=similarity_matrix[i, j])
-    
-    # Convert to plotly
-    pos = nx.spring_layout(G)
-    
-    # Create edges
-    edge_trace = []
-    for edge in G.edges():
-        x0, y0 = pos[edge[0]]
-        x1, y1 = pos[edge[1]]
-        edge_trace.append(go.Scatter(
-            x=[x0, x1, None],
-            y=[y0, y1, None],
-            mode='lines',
-            line=dict(width=2, color='gray'),
-            hoverinfo='none'
-        ))
-    
-    # Create nodes
-    node_trace = go.Scatter(
-        x=[pos[node][0] for node in G.nodes()],
-        y=[pos[node][1] for node in G.nodes()],
-        mode='markers+text',
-        text=[G.nodes[node]['label'] for node in G.nodes()],
-        textposition="top center",
-        marker=dict(size=20, color='lightblue', line=dict(width=2))
-    )
-    
-    # Create figure
-    fig = go.Figure(data=edge_trace + [node_trace])
-    fig.update_layout(
-        title="Document Relationship Network",
-        showlegend=False,
-        hovermode='closest'
-    )
-    
-    return fig
-```
+def create_simple_chart():
+    """Create simple document type chart."""
+    data = {
+        'Type': ['PDF', 'DOCX', 'TXT'],
+        'Count': [5, 3, 2]
+    }
+    df = pd.DataFrame(data)
 
-## Integration with Gradio
-
-```python
-# In app.py visualization tab
-with gr.TabItem("📊 Visualize"):
-    plot_output = gr.Plot(label="Document Visualization")
-    
-    with gr.Row():
-        viz_type = gr.Radio(
-            choices=["Similarity Map", "Network Graph", "Cluster Analysis"],
-            value="Similarity Map",
-            label="Visualization Type"
-        )
-        
-        refresh_viz_btn = gr.Button("🔄 Generate Visualization")
-    
-    refresh_viz_btn.click(
-        fn=generate_visualization,
-        inputs=[viz_type],
-        outputs=[plot_output]
+    return gr.BarPlot.update(
+        value=df,
+        x="Type",
+        y="Count",
+        title="Documents by Type"
     )
 ```
 
 ## Success Criteria
 
-1. ✅ UMAP visualization shows document relationships
-2. ✅ Network graph displays similarity connections
-3. ✅ Interactive plots with zoom/pan
-4. ✅ Handles 100+ documents smoothly
-5. ✅ Integrates seamlessly with Gradio UI
+- [ ] Stats display without errors
+- [ ] Numbers are accurate
+- [ ] Doesn't slow down main interface
+- [ ] Looks professional
