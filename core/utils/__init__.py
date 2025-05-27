@@ -12,6 +12,8 @@ __all__ = [
 from .file_utils import safe_read, safe_write
 from .id_utils import generate_document_id, generate_chunk_id
 from .performance import measure_time
+from .token_counter import TokenCounter
+from .rate_limiter import RateLimiter
 
 __all__.extend([
     "safe_read",
@@ -19,4 +21,6 @@ __all__.extend([
     "generate_document_id",
     "generate_chunk_id",
     "measure_time",
+    "TokenCounter",
+    "RateLimiter",
 ])

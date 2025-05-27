@@ -1,5 +1,7 @@
 from pathlib import Path
 from functools import lru_cache
+from typing import Optional
+
 from pydantic_settings import BaseSettings
 
 
@@ -8,6 +10,22 @@ class Settings(BaseSettings):
 
     openai_api_key: str
     openai_model: str = "gpt-4.1"
+
+    # Embedding settings
+    embedding_model: str = "text-embedding-3-large"
+    embedding_dimension: int = 3072
+    embedding_batch_size: int = 100
+
+    # Cache settings
+    cache_dir: Optional[str] = "data/embedding_cache"
+    cache_max_size: int = 1000
+    cache_ttl: int = 3600  # seconds
+
+    # Rate limiting
+    rate_limit_delay: int = 4
+    max_retries: int = 3
+
+    # Backwards compatibility
     openai_embedding_model: str = "text-embedding-3-large"
 
     app_name: str = "SemanticScout"
@@ -25,7 +43,7 @@ class Settings(BaseSettings):
     gradio_port: int = 7860
     gradio_server_name: str = "127.0.0.1"
 
-    embedding_dimensions: int = 3072
+    embedding_dimensions: int = 3072  # deprecated, use embedding_dimension
     chunk_size: int = 1000
     chunk_overlap: int = 200
     max_documents: int = 1000
