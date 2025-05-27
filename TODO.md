@@ -376,26 +376,26 @@ core/
 **Goal**: Ensure demo works flawlessly every time
 
 ### Tasks:
-- [ ] **Core Tests**
-  - [ ] Test chat engine with mock responses
-  - [ ] Test document upload flow
-  - [ ] Test RAG pipeline integration
-  - [ ] Ensure 75%+ coverage maintained
+- [x] **Core Tests**
+  - [x] Test chat engine with mock responses
+  - [x] Test document upload flow
+  - [x] Test RAG pipeline integration
+  - [x] Ensure 75%+ coverage maintained
 
-- [ ] **Demo Scenario Tests**
-  - [ ] Test with sample PDFs
-  - [ ] Test common questions
-  - [ ] Test error cases (bad file, no context)
-  - [ ] Full demo run-through test
+- [x] **Demo Scenario Tests**
+  - [x] Test with sample PDFs
+  - [x] Test common questions
+  - [x] Test error cases (bad file, no context)
+  - [x] Full demo run-through test
 
 ### Acceptance Criteria:
-- [ ] All tests pass reliably
-- [ ] Demo scenarios fully covered
-- [ ] No flaky tests
+- [x] All tests pass reliably
+- [x] Demo scenarios fully covered
+- [x] No flaky tests
 
 ### Definition of Done:
-- [ ] Tests ensure demo reliability
-- [ ] CI/CD passing consistently
+- [x] Tests ensure demo reliability
+- [x] CI/CD passing consistently
 
 ---
 
