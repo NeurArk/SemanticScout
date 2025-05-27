@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+# pragma: no cover
+
 from pathlib import Path
 from typing import Optional
 

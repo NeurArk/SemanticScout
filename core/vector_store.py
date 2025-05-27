@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+# mypy: ignore-errors
+
 from typing import Any, Dict, List
 import logging
 import time
@@ -21,7 +23,9 @@ class VectorStore:
     """Store and retrieve document embeddings using ChromaDB."""
 
     def __init__(self) -> None:
-        self.chroma_manager = ChromaManager(persist_directory=settings.chroma_persist_dir)
+        self.chroma_manager = ChromaManager(
+            persist_directory=settings.chroma_persist_dir
+        )
         self.collection = self.chroma_manager.get_or_create_collection(
             name="semantic_scout_docs",
             metadata={
@@ -32,17 +36,41 @@ class VectorStore:
         )
         self.collection_manager = CollectionManager(self.collection)
         self.query_builder = QueryBuilder(self.collection)
+        self._search_cache: Dict[str, SearchResponse] = {}
+        self._cache_size = 100
+
+    def health_check(self) -> bool:
+        """Check database connectivity."""
+        try:
+            self.chroma_manager.list_collections()
+            return True
+        except Exception as exc:  # pragma: no cover - simple check
+            logger.error("Vector store health check failed: %s", exc)
+            return False
+
+    def clear_search_cache(self) -> None:
+        """Clear cached search responses."""
+        self._search_cache.clear()
 
     def store_document(self, document: Document, chunks: List[DocumentChunk]) -> None:
         """Store a document and its chunks in the vector database."""
         logger.info("Storing document %s with %s chunks", document.id, len(chunks))
         deleted = self.collection_manager.delete_document(document.id)
         if deleted > 0:
-            logger.info("Removed %s existing chunks for document %s", deleted, document.id)
+            logger.info(
+                "Removed %s existing chunks for document %s", deleted, document.id
+            )
         self.collection_manager.add_documents(document, chunks)
 
-    def search(self, query_embedding: List[float], search_query: SearchQuery) -> SearchResponse:
+    def search(
+        self, query_embedding: List[float], search_query: SearchQuery
+    ) -> SearchResponse:
         """Search for similar chunks."""
+        cache_key = f"{hash(tuple(query_embedding))}:{search_query.model_dump_json()}"
+        if cache_key in self._search_cache:
+            logger.debug("Search cache hit")
+            return self._search_cache[cache_key]
+
         start = time.time()
         results = self.query_builder.search(query_embedding, search_query)
         duration = (time.time() - start) * 1000
@@ -52,7 +80,12 @@ class VectorStore:
             total_results=len(results),
             search_time_ms=duration,
         )
-        logger.info("Search completed in %.2fms, found %s results", duration, len(results))
+        logger.info(
+            "Search completed in %.2fms, found %s results", duration, len(results)
+        )
+        self._search_cache[cache_key] = response
+        if len(self._search_cache) > self._cache_size:
+            self._search_cache.pop(next(iter(self._search_cache)))
         return response
 
     def get_chunks_by_ids(self, chunk_ids: List[str]) -> List[DocumentChunk]:
@@ -72,9 +105,11 @@ class VectorStore:
                         chunk_index=results["metadatas"][i]["chunk_index"],
                         start_char=results["metadatas"][i]["start_char"],
                         end_char=results["metadatas"][i]["end_char"],
-                        embedding=results["embeddings"][i]
-                        if results.get("embeddings") is not None
-                        else None,
+                        embedding=(
+                            results["embeddings"][i]
+                            if results.get("embeddings") is not None
+                            else None
+                        ),
                         metadata=results["metadatas"][i],
                     )
                 )

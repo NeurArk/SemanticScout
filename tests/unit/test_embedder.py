@@ -48,7 +48,13 @@ def test_batch_processing(mock_openai: Mock) -> None:
         Mock(embedding=[0.1] * 3072) for _ in range(100)
     ]
     embedded = service.embed_document(
-        Document(id="doc_1", filename="test.txt", file_type="txt", file_size=1000, content="test"),
+        Document(
+            id="doc_1",
+            filename="test.txt",
+            file_type="txt",
+            file_size=1000,
+            content="test",
+        ),
         chunks,
     )
     assert mock_openai.embeddings.create.call_count == 2
@@ -68,3 +74,15 @@ def test_rate_limit_handling(mock_openai: Mock) -> None:
     )
     with pytest.raises(Exception):
         service.embed_query("test")
+
+
+def test_cache_hit_rate(mock_openai: Mock) -> None:
+    service = EmbeddingService()
+    service.cache.clear()
+    service.cache.cache_dir = None
+
+    service.embed_query("a")
+    service.embed_query("a")
+    stats = service.get_cache_stats()
+    assert stats["hits"] == 1
+    assert stats["hit_rate"] == 0.5

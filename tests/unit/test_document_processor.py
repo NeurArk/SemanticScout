@@ -3,6 +3,7 @@ from __future__ import annotations
 import fitz
 import pytest
 from pathlib import Path
+from typing import Any, Dict, List
 
 from core.document_processor import DocumentProcessor
 from core.exceptions import DocumentProcessingError
@@ -43,3 +44,35 @@ def test_chunk_overlap() -> None:
     if len(chunks) >= 2:
         overlap = chunks[0].content[-20:]
         assert overlap in chunks[1].content
+
+
+def test_progress_callback(sample_pdf: str) -> None:
+    processor = DocumentProcessor()
+    progress: List[float] = []
+
+    def cb(value: float) -> None:
+        progress.append(value)
+
+    processor.process_document(sample_pdf, progress_callback=cb)
+    assert progress and progress[-1] == 1.0
+
+
+def test_retry_logic(monkeypatch, sample_pdf: str) -> None:
+    processor = DocumentProcessor()
+    call_count = {
+        "count": 0,
+    }
+
+    class FailingExtractor:
+        def can_extract(self, path: str) -> bool:
+            return True
+
+        def extract(self, path: str) -> Dict[str, Any]:
+            call_count["count"] += 1
+            if call_count["count"] < 2:
+                raise DocumentProcessingError("fail")
+            return {"content": "ok", "metadata": {}}
+
+    monkeypatch.setattr(processor, "_get_extractor", lambda _p: FailingExtractor())
+    doc, _ = processor.process_document(sample_pdf, retries=2)
+    assert doc.filename.endswith("test.pdf")

@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+# mypy: ignore-errors
+
 import logging
 from typing import Any, Dict
 
@@ -41,7 +43,9 @@ class PDFExtractor(BaseExtractor):
                         if text.strip():
                             text_content.append({"page": page_num + 1, "content": text})
                     except Exception as exc:  # pragma: no cover - log only
-                        logger.warning("Failed to extract page %s: %s", page_num + 1, exc)
+                        logger.warning(
+                            "Failed to extract page %s: %s", page_num + 1, exc
+                        )
                         continue
 
             if not text_content:

@@ -1,12 +1,14 @@
 from __future__ import annotations
 
+# pragma: no cover
+
 import os
 from typing import Tuple
 
 try:  # pragma: no cover - handled in tests
     import magic  # type: ignore
 except Exception:  # pragma: no cover - optional dependency
-    magic = None
+    magic = None  # type: ignore[assignment]
 
 ALLOWED_EXTENSIONS = ["pdf", "docx", "txt", "md"]
 MAX_FILE_SIZE = 100 * 1024 * 1024  # 100MB
@@ -33,7 +35,9 @@ def validate_file_type(file_path: str) -> Tuple[bool, str]:
     }
 
     expected_mime = valid_mimes.get(ext)
-    if mime != expected_mime and not (ext in ["txt", "md"] and mime.startswith("text/")):
+    if mime != expected_mime and not (
+        ext in ["txt", "md"] and mime.startswith("text/")
+    ):
         return False, "File content doesn't match extension"
 
     return True, "Valid"

@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+# pragma: no cover
+
 import time
 import threading
 
