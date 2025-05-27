@@ -272,33 +272,33 @@ core/
 **Goal**: Build simple but effective chat with document context using GPT-4
 
 ### Tasks:
-- [ ] **Chat Engine**
-  - [ ] Create simple ChatEngine class (< 100 lines)
-  - [ ] Basic GPT-4 integration with OpenAI client
-  - [ ] Simple conversation history (last 5 messages)
-  - [ ] Clear system prompt for document Q&A
+- [x] **Chat Engine**
+  - [x] Create simple ChatEngine class (< 100 lines)
+  - [x] Basic GPT-4 integration with OpenAI client
+  - [x] Simple conversation history (last 5 messages)
+  - [x] Clear system prompt for document Q&A
 
-- [ ] **RAG Pipeline** (Keep it simple)
-  - [ ] Simple function to combine search + chat
-  - [ ] Get top 5 chunks from vector store
-  - [ ] Format chunks as context for GPT-4
-  - [ ] Add "Based on [document]..." to responses
+- [x] **RAG Pipeline** (Keep it simple)
+  - [x] Simple function to combine search + chat
+  - [x] Get top 5 chunks from vector store
+  - [x] Format chunks as context for GPT-4
+  - [x] Add "Based on [document]..." to responses
 
-- [ ] **Search Integration**
-  - [ ] Use existing vector_store.search() directly
-  - [ ] No complex ranking needed (ChromaDB does it)
-  - [ ] Return results with filename for citations
+- [x] **Search Integration**
+  - [x] Use existing vector_store.search() directly
+  - [x] No complex ranking needed (ChromaDB does it)
+  - [x] Return results with filename for citations
 
 ### Acceptance Criteria:
-- [ ] Chat gives relevant answers based on documents
-- [ ] Sources are mentioned in responses
-- [ ] Works smoothly in demo scenarios
-- [ ] Response time feels instant (< 3 seconds)
+- [x] Chat gives relevant answers based on documents
+- [x] Sources are mentioned in responses
+- [x] Works smoothly in demo scenarios
+- [x] Response time feels instant (< 3 seconds)
 
 ### Definition of Done:
-- [ ] Basic chat + RAG working end-to-end
-- [ ] Tested with real PDF documents
-- [ ] No errors during typical usage
+- [x] Basic chat + RAG working end-to-end
+- [x] Tested with real PDF documents
+- [x] No errors during typical usage
 
 ---
 
