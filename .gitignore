@@ -169,3 +169,8 @@ config.json
 # ChromaDB
 chroma.sqlite3
 chroma.sqlite3-*
+
+# Project documentation files (kept locally)
+CLAUDE.md
+AGENTS.md
+TODO.md
