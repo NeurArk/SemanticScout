@@ -67,6 +67,7 @@ docker-compose up --build
    ```bash
    cp .env.example .env
    # Edit .env and add your OpenAI API key
+   # Optional: Change OPENAI_MODEL to gpt-4.1-mini for lower costs
    ```
 
 5. **Initialize the environment**:
@@ -122,7 +123,7 @@ docker-compose up --build
 | Component | Technology | Version | Purpose |
 |-----------|------------|---------|---------|
 | **AI Framework** | LangChain + LangGraph | Latest | RAG pipeline orchestration |
-| **Language Model** | OpenAI GPT-4.1 | Latest | Chat & query understanding |
+| **Language Model** | OpenAI GPT-4.1 | Latest (2025) | Chat & query understanding |
 | **Embeddings** | text-embedding-3-large | 3072-dim | Semantic vector generation |
 | **Vector DB** | ChromaDB | Latest | Efficient similarity search |
 | **UI Framework** | Gradio | Latest | Interactive web interface |
@@ -161,7 +162,7 @@ This ensures optimal results whether searching technical papers, financial repor
 - **Chat Response**: < 3 seconds for contextual answers
 - **Search Accuracy**: Adaptive thresholds ensure optimal recall/precision balance
 - **Scalability**: Tested with technical papers, financial reports, and legal documents
-- **Resource Efficient**: ~$0.15 per chat query with GPT-4.1
+- **Resource Efficient**: ~$0.014 per query with GPT-4.1 (or ~$0.003 with GPT-4.1-mini)
 - **Test Coverage**: 82% with comprehensive unit and integration tests
 
 ## 🛠️ Development
