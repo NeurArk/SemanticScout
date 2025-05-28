@@ -50,7 +50,7 @@ class ChatEngine:
                 model=self.model,
                 messages=messages,
                 temperature=0.7,
-                max_tokens=500,
+                max_tokens=2000,
             )
             return response.choices[0].message.content
         except Exception as exc:  # pragma: no cover - simple wrapper

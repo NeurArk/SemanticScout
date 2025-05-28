@@ -38,11 +38,17 @@ class ChromaManager:
             logger.info("Retrieved existing collection: %s", name)
             return collection
         except Exception:
+            # Ensure we use cosine distance for OpenAI embeddings
+            if metadata is None:
+                metadata = {"description": "Document embeddings"}
+            # Add cosine distance metric
+            metadata["hnsw:space"] = "cosine"
+            
             collection = self.client.create_collection(
                 name=name,
-                metadata=metadata or {"description": "Document embeddings"},
+                metadata=metadata,
             )
-            logger.info("Created new collection: %s", name)
+            logger.info("Created new collection: %s with cosine distance", name)
             return collection
 
     def delete_collection(self, name: str) -> None:

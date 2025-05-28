@@ -38,6 +38,7 @@ class CollectionManager:
                 "document_id": document.id,
                 "filename": document.filename,
                 "file_type": document.file_type,
+                "file_size": document.file_size,
                 "chunk_index": chunk.chunk_index,
                 "start_char": chunk.start_char,
                 "end_char": chunk.end_char,

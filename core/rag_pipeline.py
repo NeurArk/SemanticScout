@@ -26,7 +26,7 @@ class RAGPipeline:
         """Answer a question using document retrieval and GPT-4."""
 
         embedding = self.embedder.embed_query(question)
-        search_query = SearchQuery(query_text=question, max_results=5)
+        search_query = SearchQuery(query_text=question, max_results=5, similarity_threshold=0.4)
         try:
             search_response = self.vector_store.search(embedding, search_query)
         except Exception as exc:  # pragma: no cover - wrapper

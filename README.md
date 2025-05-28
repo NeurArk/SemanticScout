@@ -7,7 +7,9 @@
 [![OpenAI GPT-4.1](https://img.shields.io/badge/OpenAI-GPT--4.1-green.svg)](https://platform.openai.com/)
 [![LangChain](https://img.shields.io/badge/LangChain-latest-orange.svg)](https://python.langchain.com/)
 [![Gradio](https://img.shields.io/badge/Gradio-latest-purple.svg)](https://gradio.app/)
-![Interface Screenshot](docs/images/interface.png)
+[![CI](https://img.shields.io/badge/CI-passing-success.svg)](https://github.com/NeurArk/SemanticScout/actions)
+
+![Interface Screenshot](images/interface.png)
 
 ## 🎯 Overview
 

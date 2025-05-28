@@ -32,6 +32,7 @@ class VectorStore:
                 "description": "Document embeddings for semantic search",
                 "embedding_model": settings.embedding_model,
                 "embedding_dimension": settings.embedding_dimension,
+                "hnsw:space": "cosine",  # Ensure cosine distance
             },
         )
         self.collection_manager = CollectionManager(self.collection)
@@ -139,6 +140,7 @@ class VectorStore:
                         "document_id": doc_id,
                         "filename": metadata.get("filename", "Unknown"),
                         "file_type": metadata.get("file_type", "Unknown"),
+                        "file_size": metadata.get("file_size", 0),
                         "chunk_count": 0,
                     }
                 if doc_id:
@@ -156,14 +158,38 @@ class VectorStore:
 
     def _get_collection_size(self) -> int:
         """Return size on disk of the vector store in bytes."""
-        total = 0
         try:
-            for path in self.chroma_manager.persist_directory.rglob("*"):
-                if path.is_file():
-                    total += path.stat().st_size
+            # If no documents, return minimal size
+            if self.collection.count() == 0:
+                # Only count the SQLite file
+                sqlite_file = self.chroma_manager.persist_directory / "chroma.sqlite3"
+                if sqlite_file.exists():
+                    return sqlite_file.stat().st_size
+                return 0
+            
+            # Otherwise, count all relevant files
+            total = 0
+            sqlite_file = self.chroma_manager.persist_directory / "chroma.sqlite3"
+            if sqlite_file.exists():
+                total += sqlite_file.stat().st_size
+            
+            # Count only the most recent collection directory
+            # ChromaDB creates new UUID directories for collections
+            uuid_dirs = []
+            for path in self.chroma_manager.persist_directory.iterdir():
+                if path.is_dir() and len(path.name) == 36:  # UUID format
+                    uuid_dirs.append(path)
+            
+            # Use the most recently modified directory
+            if uuid_dirs:
+                latest_dir = max(uuid_dirs, key=lambda p: p.stat().st_mtime)
+                for file in latest_dir.rglob("*.bin"):
+                    total += file.stat().st_size
+                    
+            return total
         except Exception as exc:  # pragma: no cover - simple helper
             logger.error("Failed to calculate collection size: %s", exc)
-        return total
+            return 0
 
     def get_statistics(self) -> Dict[str, Any]:
         """Return extended statistics for analytics display."""
@@ -187,20 +213,49 @@ class VectorStore:
 
     def clear(self) -> None:
         """Remove all documents from the vector store."""
+        import shutil
+        import time
+        from pathlib import Path
+        
         try:
+            # First, delete the collection properly
+            try:
+                self.chroma_manager.delete_collection("semantic_scout_docs")
+            except Exception:
+                pass  # Collection might not exist
+            
+            # Clean up old collections by resetting the database
             self.chroma_manager.reset_database()
+            
+            # Give ChromaDB time to release file handles
+            time.sleep(0.5)
+            
+            # Clean up orphaned directories
+            persist_dir = Path(settings.chroma_persist_dir)
+            if persist_dir.exists():
+                # Remove all UUID directories (old collections)
+                for path in persist_dir.iterdir():
+                    if path.is_dir() and len(path.name) == 36:  # UUID format
+                        try:
+                            shutil.rmtree(path)
+                            logger.info(f"Removed orphaned collection directory: {path.name}")
+                        except Exception as e:
+                            logger.warning(f"Could not remove directory {path.name}: {e}")
+            
+            # Recreate the collection with proper settings
             self.collection = self.chroma_manager.get_or_create_collection(
                 name="semantic_scout_docs",
                 metadata={
                     "description": "Document embeddings for semantic search",
                     "embedding_model": settings.embedding_model,
                     "embedding_dimension": settings.embedding_dimension,
+                    "hnsw:space": "cosine",  # Ensure cosine distance
                 },
             )
             self.collection_manager = CollectionManager(self.collection)
             self.query_builder = QueryBuilder(self.collection)
             self.clear_search_cache()
-            logger.info("Vector store cleared")
+            logger.info("Vector store cleared and cleaned")
         except Exception as exc:  # pragma: no cover - simple wrapper
             logger.error("Failed to clear vector store: %s", exc)
             raise VectorStoreError(f"Failed to clear store: {exc}") from exc
