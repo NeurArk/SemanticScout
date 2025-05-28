@@ -119,6 +119,39 @@ class VectorStore:
             logger.error("Failed to retrieve chunks: %s", exc)
             raise VectorStoreError(f"Chunk retrieval failed: {exc}") from exc
 
+    def get_chunks_by_document_id(self, document_id: str, limit: int = 10) -> List[DocumentChunk]:
+        """Retrieve chunks for a specific document."""
+        try:
+            results = self.collection.get(
+                where={"document_id": document_id},
+                limit=limit,
+                include=["documents", "metadatas", "embeddings"]
+            )
+            
+            chunks: List[DocumentChunk] = []
+            if results.get("ids"):
+                for i, chunk_id in enumerate(results["ids"]):
+                    chunks.append(
+                        DocumentChunk(
+                            id=chunk_id,
+                            document_id=document_id,
+                            content=results["documents"][i],
+                            chunk_index=results["metadatas"][i].get("chunk_index", 0),
+                            start_char=results["metadatas"][i].get("start_char", 0),
+                            end_char=results["metadatas"][i].get("end_char", 0),
+                            embedding=(
+                                results["embeddings"][i]
+                                if results.get("embeddings") is not None
+                                else None
+                            ),
+                            metadata=results["metadatas"][i],
+                        )
+                    )
+            return chunks
+        except Exception as exc:
+            logger.error("Failed to retrieve chunks by document ID: %s", exc)
+            return []
+
     def delete_document(self, document_id: str) -> bool:
         """Delete a document and its chunks."""
         try:

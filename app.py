@@ -16,6 +16,7 @@ from core.embedder import EmbeddingService
 from core.vector_store import VectorStore
 from core.rag_pipeline import RAGPipeline
 from core.models.chat import ChatMessage
+from core.utils.adaptive_search import adaptive_analyzer
 
 
 setup_logging()
@@ -66,6 +67,8 @@ def process_file(file: gr.FileData | None) -> tuple[str, gr.FileData | None]:
         embedded = embedder.embed_document(doc, chunks)
         vector_store.store_document(doc, embedded)
         uploaded_files[filename] = {"doc_id": doc.id, "chunks": len(chunks), "file_size": doc.file_size}
+        # Reset adaptive search cache after adding documents
+        adaptive_analyzer.reset_cache()
         return f"✓ Successfully processed {filename} ({len(chunks)} chunks)\n{get_upload_status()}", None
     except Exception as exc:  # pragma: no cover - gradio will show error
         return f"❌ Error processing file: {exc}\n{get_upload_status()}", None
@@ -122,6 +125,9 @@ def clear_all_documents() -> str:
         # Force garbage collection
         import gc
         gc.collect()
+        
+        # Reset adaptive search cache after clearing documents
+        adaptive_analyzer.reset_cache()
         
         return "✓ All documents cleared - Database reset successfully"
     except Exception as exc:  # pragma: no cover - gradio will show error

@@ -14,6 +14,7 @@ from .id_utils import generate_document_id, generate_chunk_id
 from .performance import measure_time
 from .token_counter import TokenCounter
 from .rate_limiter import RateLimiter
+from .adaptive_search import AdaptiveSearchAnalyzer, adaptive_analyzer
 
 __all__.extend([
     "safe_read",
@@ -23,4 +24,6 @@ __all__.extend([
     "measure_time",
     "TokenCounter",
     "RateLimiter",
+    "AdaptiveSearchAnalyzer",
+    "adaptive_analyzer",
 ])

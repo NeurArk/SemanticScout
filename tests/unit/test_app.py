@@ -8,11 +8,12 @@ import app
 from core.models.document import Document, DocumentChunk
 
 
+@patch("app.adaptive_analyzer")
 @patch("app.vector_store")
 @patch("app.embedder")
 @patch("app.doc_processor")
 def test_process_file_success(
-    mock_processor: Mock, mock_embedder: Mock, mock_store: Mock
+    mock_processor: Mock, mock_embedder: Mock, mock_store: Mock, mock_analyzer: Mock
 ) -> None:
     app.uploaded_files.clear()
     file_obj = SimpleNamespace(name="/tmp/test.txt")
@@ -60,8 +61,9 @@ def test_chat_response(mock_rag: Mock) -> None:
     mock_rag.query.assert_called_once()
 
 
+@patch("app.adaptive_analyzer")
 @patch("app.vector_store")
-def test_clear_all_documents(mock_store: Mock) -> None:
+def test_clear_all_documents(mock_store: Mock, mock_analyzer: Mock) -> None:
     app.uploaded_files["file.txt"] = {"doc_id": "d1", "chunks": 1}
     mock_store.clear.return_value = None
     msg = app.clear_all_documents()

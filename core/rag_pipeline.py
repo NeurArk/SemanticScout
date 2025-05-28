@@ -8,6 +8,7 @@ from core.embedder import EmbeddingService
 from core.vector_store import VectorStore
 from core.models.chat import ChatMessage
 from core.models.search import SearchQuery
+from core.utils.adaptive_search import adaptive_analyzer
 
 logger = logging.getLogger(__name__)
 
@@ -24,9 +25,22 @@ class RAGPipeline:
         self, question: str, history: Optional[List[ChatMessage]] = None
     ) -> Tuple[str, List[str]]:
         """Answer a question using document retrieval and GPT-4."""
-
-        embedding = self.embedder.embed_query(question)
-        search_query = SearchQuery(query_text=question, max_results=5, similarity_threshold=0.4)
+        
+        # Expand short queries for better retrieval
+        expanded_question = adaptive_analyzer.expand_query(question)
+        
+        # Get initial embedding
+        embedding = self.embedder.embed_query(expanded_question)
+        
+        # First pass with adaptive threshold
+        initial_threshold = adaptive_analyzer.get_adaptive_threshold(question)
+        
+        search_query = SearchQuery(
+            query_text=expanded_question, 
+            max_results=10,  # Get more results for better selection
+            similarity_threshold=initial_threshold
+        )
+        
         try:
             search_response = self.vector_store.search(embedding, search_query)
         except Exception as exc:  # pragma: no cover - wrapper
@@ -37,14 +51,39 @@ class RAGPipeline:
             )
 
         results = search_response.results
+        
+        # If no results, try with a lower threshold
+        if not results and initial_threshold > 0.2:
+            logger.info(f"No results with threshold {initial_threshold:.3f}, retrying with 0.15")
+            fallback_query = SearchQuery(
+                query_text=expanded_question,
+                max_results=10,
+                similarity_threshold=0.15
+            )
+            try:
+                search_response = self.vector_store.search(embedding, fallback_query)
+                results = search_response.results
+            except Exception:
+                pass
+        
         if not results:
             return (
                 "I couldn't find any relevant information in the documents.",
                 [],
             )
-
-        chunks = [res.content for res in results]
-        sources = list({res.metadata.get("filename", "Unknown") for res in results})
+        
+        # Take top 5 results for context
+        top_results = results[:5]
+        chunks = [res.content for res in top_results]
+        sources = list({res.metadata.get("filename", "Unknown") for res in top_results})
+        
+        # Log search effectiveness
+        logger.info(
+            f"Query: '{question}' (expanded: '{expanded_question}') - "
+            f"Threshold: {initial_threshold:.3f} - "
+            f"Found: {len(results)} results - "
+            f"Using top {len(top_results)} for context"
+        )
 
         answer = self.chat_engine.chat(question, chunks, history)
 

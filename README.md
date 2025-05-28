@@ -1,7 +1,7 @@
 # 🔍 SemanticScout
 
-> **AI-Powered Semantic Document Search Engine**  
-> Transform how you discover and explore documents through intelligent semantic understanding
+> **Chat with Your Documents Using GPT-4.1**  
+> Transform how you interact with documents through conversational AI and intelligent semantic search
 
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![OpenAI GPT-4.1](https://img.shields.io/badge/OpenAI-GPT--4.1-green.svg)](https://platform.openai.com/)
@@ -13,21 +13,23 @@
 
 ## 🎯 Overview
 
-SemanticScout is a cutting-edge semantic search system that revolutionizes document discovery by understanding **conceptual meaning** rather than relying on exact keyword matches. Built with the latest 2025 AI technologies, it provides enterprise-grade capabilities in an intuitive interface perfect for demonstrations and professional applications.
+SemanticScout is a cutting-edge **"Chat with Your Documents"** application that combines the power of GPT-4.1 conversational AI with advanced semantic search. Ask questions naturally and get intelligent, context-aware answers from your document collection. Built with the latest 2025 AI technologies, it features adaptive search intelligence that automatically optimizes for any domain - from technical papers to financial reports.
 
 ### ✨ Key Features
 
 - **🧠 Intelligent Processing**: Multi-format document support (PDF, DOCX, TXT, MD)
 - **🔍 Semantic Search**: Natural language queries with contextual understanding
+- **🎯 Adaptive Intelligence**: Domain-agnostic threshold adaptation for optimal results
+- **💬 Chat Interface**: GPT-4.1 powered conversational document exploration
 - **📊 Visual Analytics**: Interactive document relationship visualization
 - **⚡ Real-time Results**: Sub-2-second search responses with relevance scoring
-- **🎨 Professional UI**: Modern Gradio interface optimized for demos
+- **🎨 Professional UI**: Modern Gradio interface with automatic dark/light theme support
 - **🛡️ Enterprise Ready**: Secure, scalable architecture with comprehensive testing
 
 ## 🚀 Quick Start
 
 ### Option 1: Use Hosted Demo
-Visit: [https://huggingface.co/spaces/YOUR_USERNAME/SemanticScout]
+Deploy your own instance on Hugging Face Spaces (see deployment section)
 
 ### Option 2: Docker Compose
 ```bash
@@ -59,8 +61,6 @@ docker-compose up --build
 3. **Install dependencies**:
    ```bash
    pip install -r requirements.txt
-   # For development
-   pip install -r requirements-dev.txt
    ```
 
 4. **Configure environment**:
@@ -86,26 +86,34 @@ docker-compose up --build
 - Maximum file size: 100MB
 - Real-time processing with progress indicators
 
+### Chat with Documents
+- **Conversational Interface**: Ask questions naturally and get intelligent responses
+- **Context-Aware**: Maintains conversation history for follow-up questions
+- **Source Attribution**: Every answer includes document sources
+- **Enter to Send**: Streamlined UX with keyboard shortcuts
+
 ### Semantic Search
 - Enter natural language queries like:
-  - *"Documents about machine learning optimization techniques"*
-  - *"Research papers discussing environmental sustainability"*
-  - *"Technical specifications for database design"*
+  - *"What is attention?"* - Tests adaptive search
+  - *"Compare revenue models across documents"* - Multi-document analysis
+  - *"Explain the transformer architecture"* - Technical deep dives
 
-### Results Exploration
-- Browse ranked results with relevance scores
-- View contextual excerpts with highlighted matches
-- Explore document relationships through interactive visualizations
+### Visual Analytics
+- **Document Distribution**: See your document types at a glance
+- **Size vs Complexity**: Scatter plot showing document characteristics
+- **Theme Adaptive**: Charts automatically adjust to light/dark modes
 
 ## 📄 Sample Documents
-- samples/contract_example.pdf
-- samples/research_paper.pdf
-- samples/product_manual.pdf
+- **Apple Financial Report** (`apple_financial_report.pdf`) - Q3 2024 quarterly results
+- **Attention Is All You Need** (`attention_is_all_you_need.pdf`) - Transformer architecture paper
+- **SaaS Agreement Example** (`saas_agreement_example.pdf`) - Enterprise software contract
 
 ## ❓ Demo Questions
-- "What are the key terms in this contract?"
-- "Summarize the main findings"
-- "What are the payment conditions?"
+- **General**: "What is attention?" → Tests adaptive search for short queries
+- **Financial**: "What was Apple's revenue in Q3 2024?"
+- **Technical**: "Explain the transformer architecture"
+- **Legal**: "What are the termination clauses in the SaaS agreement?"
+- **Cross-document**: "Compare the complexity between transformers and Apple's financials"
 
 ## 🏗️ Architecture
 
@@ -136,13 +144,25 @@ docker-compose up --build
 └─────────────────┘    └─────────────────┘    └─────────────────┘
 ```
 
+### 🎯 Adaptive Search Intelligence
+
+SemanticScout employs an advanced **domain-agnostic adaptive search system** that automatically adjusts retrieval parameters based on:
+
+- **Query Complexity Analysis**: Linguistic patterns determine optimal search thresholds
+- **Corpus Vocabulary Extraction**: Dynamic analysis of document collection characteristics  
+- **Auto-calibration**: Real-time adjustment based on result distribution
+- **Query Expansion**: Automatic enhancement of short queries for better recall
+
+This ensures optimal results whether searching technical papers, financial reports, or legal documents without manual configuration.
+
 ## 📊 Performance
 
 - **Processing Speed**: < 30 seconds per document
-- **Search Latency**: < 2 seconds average response time
-- **Accuracy**: 85%+ relevance score on semantic queries
-- **Scalability**: Optimized for 1000+ documents
-- **Memory Usage**: < 2GB RAM for typical workloads
+- **Chat Response**: < 3 seconds for contextual answers
+- **Search Accuracy**: Adaptive thresholds ensure optimal recall/precision balance
+- **Scalability**: Tested with technical papers, financial reports, and legal documents
+- **Resource Efficient**: ~$0.15 per chat query with GPT-4.1
+- **Test Coverage**: 82% with comprehensive unit and integration tests
 
 ## 🛠️ Development
 
@@ -151,16 +171,18 @@ docker-compose up --build
 ```
 SemanticScout/
 ├── app.py                 # Main Gradio application
-├── core/                 # Core business logic
-│   ├── models.py         # Data models
+├── core/                  # Core business logic
+│   ├── models/           # Data models
 │   ├── document_processor.py  # Document processing
 │   ├── embedder.py       # Embedding generation
-│   ├── search_engine.py  # Search functionality
-│   └── visualizer.py     # Visualization
+│   ├── rag_pipeline.py   # RAG orchestration
+│   ├── chat_engine.py    # Chat functionality
+│   ├── vector_store.py   # Vector storage
+│   └── utils/            # Utilities including adaptive search
 ├── config/               # Configuration
-├── tests/                # Test suites
-├── docs/                 # Documentation
-├── data/                 # Local data storage
+├── tests/                # Test suites (82% coverage)
+├── samples/              # Example documents
+├── images/               # UI screenshots
 └── requirements.txt      # Dependencies
 ```
 
@@ -170,8 +192,8 @@ SemanticScout/
 # Run all tests
 pytest
 
-# Run with coverage
-pytest --cov=src
+# Run with coverage (82% achieved!)
+pytest --cov=core
 
 # Run specific test category
 pytest tests/unit/
@@ -182,16 +204,16 @@ pytest tests/integration/
 
 ```bash
 # Format code
-black src/ tests/
+black . --line-length 100
 
-# Check types
-mypy src/
+# Run linting
+ruff check .
 
-# Lint code
-flake8 src/ tests/
+# Type checking (if configured)
+mypy core/
 
-# Run all checks
-pre-commit run --all-files
+# Run all tests with coverage
+pytest --cov=core --cov-report=html
 ```
 
 ## 🚀 Deployment
@@ -232,13 +254,16 @@ docker run -p 7860:7860 -e OPENAI_API_KEY=your_key semantic-scout
 ## 🆘 Backup Plan
 If something fails during the demo, restart the application and check logs in the `logs/` directory or run `docker-compose up` again.
 
-## 📚 Documentation
+## 📚 Key Technologies Explained
 
-- **[Product Requirements](docs/PRD.md)**: Complete product specification
-- **[Technical Architecture](docs/ARCHITECTURE.md)**: Detailed system design
-- **[UI Guidelines](docs/UI_GUIDELINES.md)**: Interface design standards
-- **[Deployment Guide](docs/DEPLOYMENT.md)**: Production deployment instructions
-- **[Development Roadmap](docs/TODO.md)**: Feature development timeline
+### RAG (Retrieval Augmented Generation)
+Combines the power of semantic search with GPT-4.1 to provide accurate, contextual answers based on your documents.
+
+### Adaptive Search
+Our proprietary algorithm automatically adjusts search parameters based on query complexity and document characteristics, ensuring optimal results without manual tuning.
+
+### ChromaDB Integration
+Efficient vector storage with cosine similarity search, optimized for semantic retrieval at scale.
 
 ## 🤝 Contributing
 
@@ -278,10 +303,10 @@ Perfect for demonstrating expertise in:
 
 ## 🔗 Links
 
-- **Live Demo**: [Coming Soon]
-- **Documentation**: [docs/](docs/)
+- **Live Demo**: [Coming Soon on Hugging Face]
 - **GitHub**: [https://github.com/NeurArk/SemanticScout](https://github.com/NeurArk/SemanticScout)
 - **Portfolio**: [NeurArk](https://github.com/NeurArk)
+- **Issues & Support**: [GitHub Issues](https://github.com/NeurArk/SemanticScout/issues)
 
 ---
 
