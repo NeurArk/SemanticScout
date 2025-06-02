@@ -317,6 +317,9 @@ def clear_all_documents() -> str:
     
     global uploaded_files
     try:
+        # Count documents before clearing
+        doc_count = len(uploaded_files)
+        
         # Clear the vector store
         vector_store.clear()
         
@@ -333,7 +336,10 @@ def clear_all_documents() -> str:
         # Reset adaptive search cache after clearing documents
         adaptive_analyzer.reset_cache()
         
-        return get_upload_status()
+        if doc_count > 0:
+            return f"✓ Successfully cleared {doc_count} document{'s' if doc_count > 1 else ''}\\n{get_upload_status()}"
+        else:
+            return get_upload_status()
     except Exception as exc:  # pragma: no cover - gradio will show error
         return f"❌ Error clearing documents: {exc}"
 
