@@ -16,9 +16,9 @@ logger = logging.getLogger(__name__)
 class RAGPipeline:
     """Simple RAG pipeline combining search and chat."""
 
-    def __init__(self) -> None:
+    def __init__(self, vector_store: Optional[VectorStore] = None) -> None:
         self.chat_engine = ChatEngine()
-        self.vector_store = VectorStore()
+        self.vector_store = vector_store or VectorStore()
         self.embedder = EmbeddingService()
 
     def query(
